@@ -1,4 +1,5 @@
-#🌟 Introduction
+🌟 Introduction 
+
 In both our personal and professional lives, we all write down notes and create "to-do" lists. Whether it's setting New Year's goals, 
 managing finances, planning a summer vacation, or remembering important life events, we rely on different methods to keep track of what needs to be done.\
 Usually we use notepads or apps for these reminders.
@@ -13,7 +14,8 @@ a tool that acts like a personal assistant, consistently reminding me of my obli
 
 To solve this problem, I made an app to help organize daily activities better.
 
-#🗓️ TaskMinder
+🗓️ TaskMinder
+
 **TaskMinder** is a web application designed to simplify your daily planning. 
 It consists of single page with four main features:
 
@@ -33,13 +35,17 @@ It consists of single page with four main features:
 
 Each task can have an optional due date. When a due date is within the next 7 days, the task is automatically added to your schedule. 
 Repeating tasks can be set to recreate automatically after a specified interval, such as reminding you to register your car annually.
-Tasks without a deadline can still be assigned to specific days within the next week with only 2 clicks (soft commit).
-Tasks can be moved back to their original groups (One-Time or Repeating), and both scheduled and unscheduled tasks can be sorted to 
-prioritize your activities effectively.
 This greatly reduces friction in helping us complete what we plan to do.
-
 
 ---
 
 > "Changes that seem small and unimportant at first will compound into remarkable results if you're willing to stick with them for years. We all deal with setbacks but in the long run, the quality of our lives often depends on the quality of our habits."  
 > — *James Clear*
+-----
+TO DO:
+- remove comments from code
+- implement seeder for dummy data
+- make UI look nicer
+- ...
+
+
