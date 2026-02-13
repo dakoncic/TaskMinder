@@ -182,6 +182,10 @@ namespace Core.Services
 
                 if (newCommitDay is not null)
                 {
+                    if (itemTaskEntity.Item.RowIndex.HasValue)
+                    {
+                        await UpdateRowIndexesForRemainingItems(itemTaskEntity.Item);
+                    }
                     itemTaskDomain.RowIndex = await GetNewItemTaskRowIndex(newCommitDay);
                     itemTaskDomain.Item.RowIndex = null;
                 }
