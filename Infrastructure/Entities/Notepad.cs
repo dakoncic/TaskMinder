@@ -3,11 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Infrastructure.Entities
 {
-    public class Notepad : BaseEntity<int>, IHasRowIndex
+    public class Notepad : BaseEntity, IHasRowIndex
     {
-        [Key]
-        public int Id { get; set; }
-
         public string? Content { get; set; }
 
         [Required]

@@ -8,9 +8,9 @@ namespace Core.DomainModels
         public int TaskTemplateId { get; set; }
         public DateTime? CommittedDate { get; set; }
         public DateTime? DueDate { get; set; }
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
         public DateTime? CompletionDate { get; set; }
-        public TaskTemplate TaskTemplate { get; set; }
+        public TaskTemplate TaskTemplate { get; set; } = null!;
 
         public TaskOccurrence CreateNewRecurringTask()
         {

@@ -12,11 +12,11 @@ namespace Core.Services
     public class NotepadService : BaseService, INotepadService
     {
         private readonly MyFeaturesDbContext _context;
-        private readonly IGenericRepository<Entity.Notepad, int> _notepadRepository;
+        private readonly IGenericRepository<Entity.Notepad> _notepadRepository;
 
         public NotepadService(
             MyFeaturesDbContext context,
-            IGenericRepository<Entity.Notepad, int> notepadRepository
+            IGenericRepository<Entity.Notepad> notepadRepository
             )
         {
             _context = context;
@@ -59,7 +59,7 @@ namespace Core.Services
 
             if (newIndex < 1 || newIndex > notepadsEntity.Count())
             {
-                throw new ArgumentOutOfRangeException(nameof(notepadDomain.RowIndex), "Index out of range.");
+                throw new ArgumentOutOfRangeException(nameof(notepadDomain), "Index out of range.");
             }
 
             if (newIndex != currentIndex)

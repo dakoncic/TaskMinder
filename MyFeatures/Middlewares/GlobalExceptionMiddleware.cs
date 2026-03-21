@@ -6,10 +6,12 @@ namespace MyFeatures.Middlewares
     public class GlobalExceptionMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger<GlobalExceptionMiddleware> _logger;
 
-        public GlobalExceptionMiddleware(RequestDelegate next)
+        public GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExceptionMiddleware> logger)
         {
             _next = next;
+            _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -36,6 +38,13 @@ namespace MyFeatures.Middlewares
                 //Core.Exceptions.NotImplementedException => (int)HttpStatusCode.NotImplemented,
                 _ => (int)HttpStatusCode.InternalServerError
             };
+
+            _logger.LogError(
+                exception,
+                "Unhandled exception for {RequestMethod} {RequestPath}. Returning {StatusCode}.",
+                context.Request.Method,
+                context.Request.Path,
+                response.StatusCode);
 
             var result = JsonSerializer.Serialize(new
             {

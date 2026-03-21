@@ -9,9 +9,17 @@ using Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
 using MyFeatures.Helpers;
 using MyFeatures.Middlewares;
+using Serilog;
+using Serilog.Events;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((_, _, configuration) => configuration
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+    .Enrich.FromLogContext()
+    .WriteTo.Console());
 
 // Add services to the container.
 
@@ -24,7 +32,7 @@ builder.Services.AddDbContext<MyFeaturesDbContext>(options =>
     });
 });
 
-builder.Services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 builder.Services.AddScoped<ITaskTemplateService, TaskTemplateService>();
 builder.Services.AddScoped<INotepadService, NotepadService>();
@@ -55,7 +63,7 @@ builder.Services.AddSwaggerGen(c =>
     c.OperationFilter<CustomOperationIdFilter>();
 });
 
-var allowedOrigins = builder.Configuration.GetSection("CorsOrigins:AllowedOrigins").Get<string[]>();
+var allowedOrigins = builder.Configuration.GetSection("CorsOrigins:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 
 builder.Services.AddCors(options =>
 {

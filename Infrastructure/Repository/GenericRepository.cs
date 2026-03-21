@@ -7,8 +7,8 @@ using Z.EntityFramework.Plus;
 
 namespace Infrastructure.Repository
 {
-    public class GenericRepository<TEntity, TKeyType> : IGenericRepository<TEntity, TKeyType>
-        where TEntity : BaseEntity<TKeyType>
+    public class GenericRepository<TEntity> : IGenericRepository<TEntity>
+        where TEntity : BaseEntity
     {
         protected readonly MyFeaturesDbContext _context;
         protected readonly DbSet<TEntity> _dbSet;
@@ -22,8 +22,8 @@ namespace Infrastructure.Repository
         //ako želim naglasit da će se potencijalno ova lista dalje query-at tamo gdje se zove
         //onda maknut IEnumerable i ne vratit ToListAsync() nego IQueryable npr.
         public async Task<IEnumerable<TEntity>> GetAllAsync(
-            Expression<Func<TEntity, bool>> filter = null,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+            Expression<Func<TEntity, bool>>? filter = null,
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
             string includeProperties = "",
             int? skip = null,
             int? take = null)
@@ -61,7 +61,7 @@ namespace Infrastructure.Repository
             return await query.ToListAsync();
         }
 
-        public async Task<TEntity> GetByIdAsync(TKeyType id, string includeProperties = "")
+        public async Task<TEntity?> GetByIdAsync(int id, string includeProperties = "")
         {
             IQueryable<TEntity> query = _dbSet;
 
@@ -70,12 +70,12 @@ namespace Infrastructure.Repository
                 query = query.Include(includeProperty);
             }
 
-            return await query.FirstOrDefaultAsync(e => e.Id.Equals(id));
+            return await query.FirstOrDefaultAsync(e => e.Id == id);
         }
 
-        public async Task<TEntity> GetFirstOrDefaultAsync(
+        public async Task<TEntity?> GetFirstOrDefaultAsync(
             Expression<Func<TEntity, bool>> filter,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null
             )
         {
             IQueryable<TEntity> query = _dbSet;
@@ -114,7 +114,7 @@ namespace Infrastructure.Repository
             return await _dbSet.Where(filter).UpdateAsync(updateEntityFactory);
         }
 
-        public void Delete(TKeyType id)
+        public void Delete(int id)
         {
             var entity = _dbSet.Find(id);
             if (entity != null)

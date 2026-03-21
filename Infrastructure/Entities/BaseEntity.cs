@@ -1,7 +1,10 @@
-﻿namespace Infrastructure.Entities
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Infrastructure.Entities
 {
-    public abstract class BaseEntity<TKeyType>
+    public abstract class BaseEntity
     {
-        public TKeyType Id { get; set; }
+        [Key]
+        public int Id { get; set; }
     }
 }

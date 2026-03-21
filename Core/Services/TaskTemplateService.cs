@@ -16,13 +16,13 @@ namespace Core.Services
         private const string TaskTemplateInclude = "TaskTemplate";
 
         private readonly MyFeaturesDbContext _context;
-        private readonly IGenericRepository<Entity.TaskTemplate, int> _taskTemplateRepository;
-        private readonly IGenericRepository<Entity.TaskOccurrence, int> _taskOccurrenceRepository;
+        private readonly IGenericRepository<Entity.TaskTemplate> _taskTemplateRepository;
+        private readonly IGenericRepository<Entity.TaskOccurrence> _taskOccurrenceRepository;
 
         public TaskTemplateService(
             MyFeaturesDbContext context,
-            IGenericRepository<Entity.TaskTemplate, int> taskTemplateRepository,
-            IGenericRepository<Entity.TaskOccurrence, int> taskOccurrenceRepository
+            IGenericRepository<Entity.TaskTemplate> taskTemplateRepository,
+            IGenericRepository<Entity.TaskOccurrence> taskOccurrenceRepository
             )
         {
             _context = context;

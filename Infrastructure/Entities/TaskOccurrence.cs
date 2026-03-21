@@ -2,11 +2,8 @@
 
 namespace Infrastructure.Entities
 {
-    public class TaskOccurrence : BaseEntity<int>
+    public class TaskOccurrence : BaseEntity
     {
-        [Key]
-        public int Id { get; set; }
-
         [Required]
         public int TaskTemplateId { get; set; }
 
@@ -17,11 +14,11 @@ namespace Infrastructure.Entities
         public DateTime? CommittedDate { get; set; }
 
         [StringLength(1000)]
-        public string Description { get; set; } //modified description for recurring
+        public string Description { get; set; } = string.Empty; //modified description for recurring
 
         [DataType(DataType.Date)]
         public DateTime? CompletionDate { get; set; }
 
-        public TaskTemplate TaskTemplate { get; set; }
+        public TaskTemplate TaskTemplate { get; set; } = null!;
     }
 }

@@ -4,14 +4,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Infrastructure.Entities
 {
-    public class TaskTemplate : BaseEntity<int>, IHasRowIndex
+    public class TaskTemplate : BaseEntity, IHasRowIndex
     {
-        [Key]
-        public int Id { get; set; }
-
         [Required]
         [StringLength(500)]
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         public bool Recurring { get; set; }
 

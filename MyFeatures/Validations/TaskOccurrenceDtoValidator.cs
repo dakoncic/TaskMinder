@@ -13,6 +13,10 @@ namespace MyFeatures.Validations
                 .NotEmpty()
                 .WithMessage("Description is required.");
 
+            RuleFor(dto => dto.TaskTemplate)
+                .NotNull()
+                .WithMessage("Task template is required.");
+
             When(dto => dto.TaskTemplate != null, () =>
             {
                 RuleFor(dto => dto.TaskTemplate.Description)

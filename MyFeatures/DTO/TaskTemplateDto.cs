@@ -5,7 +5,7 @@ namespace MyFeatures.DTO
     public class TaskTemplateDto
     {
         public int Id { get; set; }
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
         public bool Recurring { get; set; }
         public bool? RenewOnDueDate { get; set; }
         public int? IntervalValue { get; set; }
