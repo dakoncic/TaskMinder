@@ -10,11 +10,11 @@ import { InputTextModule } from 'primeng/inputtext';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { Subject, combineLatest, take, takeUntil } from 'rxjs';
-import { IntervalType, ItemService, ItemTaskDto } from '../../../infrastructure';
-import { ItemExtendedService } from '../../extended-services/item-extended-service';
+import { IntervalType, TaskTemplateService, TaskOccurrenceDto } from '../../../infrastructure';
+import { TaskTemplateExtendedService } from '../../extended-services/task-template-extended-service';
 
 @Component({
-  selector: 'app-edit-item-dialog',
+  selector: 'app-edit-task-dialog',
   standalone: true,
   imports: [
     CommonModule,
@@ -28,30 +28,30 @@ import { ItemExtendedService } from '../../extended-services/item-extended-servi
     RadioButtonModule,
     TranslateModule
   ],
-  templateUrl: './edit-item-dialog.component.html',
-  styleUrl: './edit-item-dialog.component.scss',
+  templateUrl: './edit-task-dialog.component.html',
+  styleUrl: './edit-task-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class EditItemDialogComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class EditTaskDialogComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
 
   form!: FormGroup;
-  private formBuilder = inject(FormBuilder);
-  private ref = inject(DynamicDialogRef);
-  private config = inject(DynamicDialogConfig);
-  private itemService = inject(ItemService);
-  private itemExtendedService = inject(ItemExtendedService);
-  private translate = inject(TranslateService);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly ref = inject(DynamicDialogRef);
+  private readonly config = inject(DynamicDialogConfig);
+  private readonly taskTemplateService = inject(TaskTemplateService);
+  private readonly taskTemplateExtendedService = inject(TaskTemplateExtendedService);
+  private readonly translate = inject(TranslateService);
 
-  itemTask: ItemTaskDto = {}; //trenutno selektiran
+  taskOccurrence: TaskOccurrenceDto = {}; //trenutno selektiran
   stateOptions: any[] = [
-    { label: this.translate.instant('editItem.oneTime'), value: false },
-    { label: this.translate.instant('editItem.recurring'), value: true }
+    { label: this.translate.instant('editTask.oneTime'), value: false },
+    { label: this.translate.instant('editTask.recurring'), value: true }
   ];
 
   renewOptions: any[] = [
-    { label: this.translate.instant('editItem.onDueDate'), value: true },
-    { label: this.translate.instant('editItem.onCompletionDate'), value: false }
+    { label: this.translate.instant('editTask.onDueDate'), value: true },
+    { label: this.translate.instant('editTask.onCompletionDate'), value: false }
   ];
   ingredient!: string;
 
@@ -68,8 +68,8 @@ export class EditItemDialogComponent implements OnInit, OnDestroy {
     });
 
     //ako je edit, povuci s backenda i prikaži na formi
-    if (this.config.data?.itemTask) {
-      this.editItem(this.config.data.itemTask);
+    if (this.config.data?.taskOccurrence) {
+      this.loadTaskOccurrence(this.config.data.taskOccurrence);
 
       //nema mijenjanja recurringa na edit
       this.form.get('recurring')?.disable();
@@ -106,13 +106,13 @@ export class EditItemDialogComponent implements OnInit, OnDestroy {
     this.form.get('renewOnDueDate')!.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((renewOnDueDate) => {
-        if (renewOnDueDate !== null) {
+        if (renewOnDueDate === null) {
+          this.form.get('intervalType')?.disable();
+          this.form.get('intervalType')?.reset();
+        } else {
           this.form.get('intervalType')?.enable();
           //ako je odabrao datum i recurring je, mora odabrat tip sekvence
           this.form.get('intervalType')?.addValidators(Validators.required);
-        } else {
-          this.form.get('intervalType')?.disable();
-          this.form.get('intervalType')?.reset();
         }
 
         this.form.get('intervalType')?.updateValueAndValidity();
@@ -134,84 +134,83 @@ export class EditItemDialogComponent implements OnInit, OnDestroy {
       });
   }
 
-  completeItem(itemTask: ItemTaskDto) {
-    this.itemExtendedService.completeItem(itemTask.id!);
+  completeTaskOccurrence(taskOccurrence: TaskOccurrenceDto) {
+    this.taskTemplateExtendedService.completeTaskOccurrence(taskOccurrence.id!);
   }
 
-  editItem(itemTask: ItemTaskDto) {
-    this.itemService.getItemTaskById(itemTask.id!)
+  loadTaskOccurrence(taskOccurrence: TaskOccurrenceDto) {
+    this.taskTemplateService.getTaskOccurrenceById(taskOccurrence.id!)
       .pipe(take(1))
-      .subscribe((itemTask) => {
-        this.displayItem(itemTask);
+      .subscribe((loadedTaskOccurrence) => {
+        this.displayTaskOccurrence(loadedTaskOccurrence);
       });
   }
 
-  displayItem(itemTask: ItemTaskDto): void {
-    this.itemTask = itemTask;
+  displayTaskOccurrence(taskOccurrence: TaskOccurrenceDto): void {
+    this.taskOccurrence = taskOccurrence;
 
-    const description = itemTask.committedDate ? itemTask.description : itemTask.item!.description;
+    const description = taskOccurrence.committedDate ? taskOccurrence.description : taskOccurrence.taskTemplate!.description;
 
     this.form.patchValue({
       description: description,
-      recurring: itemTask.item!.recurring,
-      renewOnDueDate: itemTask.item!.renewOnDueDate,
-      dueDate: itemTask.dueDate ? new Date(itemTask.dueDate) : null,
-      intervalValue: itemTask.item!.intervalValue,
-      intervalType: itemTask.item!.intervalType
+      recurring: taskOccurrence.taskTemplate!.recurring,
+      renewOnDueDate: taskOccurrence.taskTemplate!.renewOnDueDate,
+      dueDate: taskOccurrence.dueDate ? new Date(taskOccurrence.dueDate) : null,
+      intervalValue: taskOccurrence.taskTemplate!.intervalValue,
+      intervalType: taskOccurrence.taskTemplate!.intervalType
     });
   }
 
-  saveItem() {
+  saveTaskOccurrence() {
     if (this.form.dirty) {
-      let itemTask: ItemTaskDto;
+      let taskOccurrence: TaskOccurrenceDto;
 
-      if (!this.itemTask.id) {
-        itemTask = {
-          description: this.form.getRawValue().description,
-          //spremam samo datum bez vremenske komponente (gledam datum iz kalendara, vremenska zona nije važna) ".toLocale(en-CA)"
+      if (this.taskOccurrence.id) {
+        taskOccurrence = {
+          ...this.taskOccurrence,
           dueDate: this.form.getRawValue().dueDate ? this.form.getRawValue().dueDate.toLocaleDateString('en-CA') : null,
-          item: {
-            ...this.form.getRawValue()
-          }
-        };
-
-        this.itemExtendedService.createItem(itemTask)
-      } else {
-
-        itemTask = {
-          ...this.itemTask,
-          dueDate: this.form.getRawValue().dueDate ? this.form.getRawValue().dueDate.toLocaleDateString('en-CA') : null,
-          item: {
-            ...this.itemTask.item,
+          taskTemplate: {
+            ...this.taskOccurrence.taskTemplate,
             renewOnDueDate: this.form.getRawValue().renewOnDueDate,
             intervalType: this.form.getRawValue().intervalType,
             intervalValue: this.form.getRawValue().intervalValue
           }
         };
 
-        this.updateDescriptions(itemTask);
+        this.updateDescriptions(taskOccurrence);
 
-        this.itemExtendedService.updateItem(itemTask);
+        this.taskTemplateExtendedService.updateTaskOccurrence(taskOccurrence);
+      } else {
+        taskOccurrence = {
+          description: this.form.getRawValue().description,
+          //spremam samo datum bez vremenske komponente (gledam datum iz kalendara, vremenska zona nije važna) ".toLocale(en-CA)"
+          dueDate: this.form.getRawValue().dueDate ? this.form.getRawValue().dueDate.toLocaleDateString('en-CA') : null,
+          taskTemplate: {
+            ...this.form.getRawValue()
+          }
+        };
+
+        this.taskTemplateExtendedService.createTaskOccurrence(taskOccurrence)
       }
     }
 
     this.hideDialog();
   }
 
-  private updateDescriptions(itemTask: ItemTaskDto) {
+  private updateDescriptions(taskOccurrence: TaskOccurrenceDto) {
     const description = this.form.getRawValue().description;
 
     //za one time, update se radi na oba descriptiona
-    if (!itemTask.item!.recurring) {
-      itemTask.item!.description = description;
-      itemTask.description = description;
+    if (!taskOccurrence.taskTemplate!.recurring) {
+      taskOccurrence.taskTemplate!.description = description;
+      taskOccurrence.description = description;
     }
-    //ako je update original item-a (ne iz weekdays tablice), onda samo njega update-at iz forme
-    else if (itemTask.committedDate) {
-      itemTask.description = description;
+    //ako je update original task occurrence-a (ne iz weekdays tablice), onda samo njega update-at iz forme
+    else if (taskOccurrence.committedDate) {
+      taskOccurrence.description = description;
     } else {
-      //inače update-at child item iz weekdays
-      itemTask.item!.description = description;
+      //inače update-at child task occurrence iz weekdays
+      taskOccurrence.taskTemplate!.description = description;
     }
   }
 

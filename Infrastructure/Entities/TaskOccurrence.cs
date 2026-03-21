@@ -1,15 +1,14 @@
-﻿using Shared.Interfaces;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Infrastructure.Entities
 {
-    public class ItemTask : BaseEntity<int>, IHasRowIndex
+    public class TaskOccurrence : BaseEntity<int>
     {
         [Key]
         public int Id { get; set; }
 
         [Required]
-        public int ItemId { get; set; }
+        public int TaskTemplateId { get; set; }
 
         [DataType(DataType.Date)]
         public DateTime? DueDate { get; set; }
@@ -23,8 +22,6 @@ namespace Infrastructure.Entities
         [DataType(DataType.Date)]
         public DateTime? CompletionDate { get; set; }
 
-        public int? RowIndex { get; set; }
-
-        public Item Item { get; set; }
+        public TaskTemplate TaskTemplate { get; set; }
     }
 }

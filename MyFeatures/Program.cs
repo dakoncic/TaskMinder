@@ -12,7 +12,6 @@ using MyFeatures.Middlewares;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
-var _configuration = builder.Configuration;
 
 // Add services to the container.
 
@@ -27,7 +26,7 @@ builder.Services.AddDbContext<MyFeaturesDbContext>(options =>
 
 builder.Services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
 
-builder.Services.AddScoped<IItemService, ItemService>();
+builder.Services.AddScoped<ITaskTemplateService, TaskTemplateService>();
 builder.Services.AddScoped<INotepadService, NotepadService>();
 
 builder.Services.AddControllers().AddJsonOptions(options =>
@@ -94,4 +93,4 @@ app.MapFallbackToFile("index.html");
 
 StartupHelper.ApplyMigrations(app);
 
-app.Run();
+await app.RunAsync();

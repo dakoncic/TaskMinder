@@ -34,22 +34,22 @@
 
     <div class="grid">
       <div class="col-6">
-        <app-active-item-tasks-table
+        <app-active-task-occurrences-table
           [items]="(oneTimeItems$ | async)!"
           [columns]="cols"
           [(currentDay)]="currentDay"
           title="home.oneTime"
           [isRecurring]="false"
-        ></app-active-item-tasks-table>
+        ></app-active-task-occurrences-table>
       </div>
       <div class="col-6">
-        <app-active-item-tasks-table
+        <app-active-task-occurrences-table
           [items]="(recurringItems$ | async)!"
           [columns]="cols"
           [(currentDay)]="currentDay"
           title="home.recurring"
           [isRecurring]="true"
-        ></app-active-item-tasks-table>
+        ></app-active-task-occurrences-table>
       </div>
     </div>
 

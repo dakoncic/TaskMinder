@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Infrastructure.Entities
 {
-    public class Item : BaseEntity<int>, IHasRowIndex
+    public class TaskTemplate : BaseEntity<int>, IHasRowIndex
     {
         [Key]
         public int Id { get; set; }
@@ -27,6 +27,6 @@ namespace Infrastructure.Entities
         public bool Completed { get; set; }
 
         //nova lista se inicijalizira tako da nikad ne bude null
-        public ICollection<ItemTask> ItemTasks { get; set; } = new List<ItemTask>();
+        public ICollection<TaskOccurrence> TaskOccurrences { get; set; } = new List<TaskOccurrence>();
     }
 }

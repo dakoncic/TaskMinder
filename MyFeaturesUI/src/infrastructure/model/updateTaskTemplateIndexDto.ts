@@ -9,17 +9,11 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { ItemDto } from './itemDto';
 
 
-export interface ItemTaskDto { 
-    id?: number;
-    itemId?: number;
-    committedDate?: string | null;
-    dueDate?: string | null;
-    description?: string | null;
-    completionDate?: string | null;
-    rowIndex?: number | null;
-    item?: ItemDto;
+export interface UpdateTaskTemplateIndexDto { 
+    taskTemplateId?: number;
+    newIndex?: number;
+    recurring?: boolean;
 }
 

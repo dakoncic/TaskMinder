@@ -10,10 +10,10 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ToolbarModule } from 'primeng/toolbar';
 import { map, of, take } from 'rxjs';
-import { ItemExtendedService } from '../extended-services/item-extended-service';
+import { TaskTemplateExtendedService } from '../extended-services/task-template-extended-service';
 import { NotepadExtendedService } from '../extended-services/notepad-extended-service';
-import { ActiveItemTasksTableComponent } from './active-item-tasks-table/active-item-tasks-table.component';
-import { EditItemDialogComponent } from './edit-item-dialog/edit-item-dialog.component';
+import { ActiveTaskOccurrencesTableComponent } from './active-task-occurrences-table/active-task-occurrences-table.component';
+import { EditTaskDialogComponent } from './edit-task-dialog/edit-task-dialog.component';
 import { NotepadComponent } from './notepad/notepad.component';
 import { TodoComponent } from './todo/todo.component';
 
@@ -27,9 +27,8 @@ import { TodoComponent } from './todo/todo.component';
     ToolbarModule,
     InputTextModule,
     SelectButtonModule,
-    EditItemDialogComponent,
     TodoComponent,
-    ActiveItemTasksTableComponent,
+    ActiveTaskOccurrencesTableComponent,
     NotepadComponent,
     DividerModule,
     DragDropModule,
@@ -45,11 +44,11 @@ import { TodoComponent } from './todo/todo.component';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomeComponent implements OnInit {
-  private itemExtendedService = inject(ItemExtendedService);
-  private notepadExtendedService = inject(NotepadExtendedService);
-  private dialogService = inject(DialogService);
-  private datePipe = inject(DatePipe);
-  private translate = inject(TranslateService);
+  private readonly taskTemplateExtendedService = inject(TaskTemplateExtendedService);
+  private readonly notepadExtendedService = inject(NotepadExtendedService);
+  private readonly dialogService = inject(DialogService);
+  private readonly datePipe = inject(DatePipe);
+  private readonly translate = inject(TranslateService);
 
   newIndex: number | null = null;
   originalIndex!: number;
@@ -59,30 +58,30 @@ export class HomeComponent implements OnInit {
 
   weekdays: any[] = [];
 
-  oneTimeItems$ = this.itemExtendedService.oneTimeItems$.pipe(
-    map(oneTimeTaskItems => oneTimeTaskItems.map(taskItem => ({
-      ...taskItem,
-      description: taskItem.item?.description, //original od Itema ide ovdje
-      dueDate: taskItem.dueDate ? this.datePipe.transform(taskItem.dueDate, 'dd.MM.yy') : null
+  oneTimeItems$ = this.taskTemplateExtendedService.oneTimeItems$.pipe(
+    map(oneTimeTaskOccurrences => oneTimeTaskOccurrences.map(taskOccurrence => ({
+      ...taskOccurrence,
+      description: taskOccurrence.taskTemplate?.description,
+      dueDate: taskOccurrence.dueDate ? this.datePipe.transform(taskOccurrence.dueDate, 'dd.MM.yy') : null
     })))
   );
 
-  recurringItems$ = this.itemExtendedService.recurringItems$.pipe(
-    map(recurringTaskItems => recurringTaskItems.map(taskItem => ({
-      ...taskItem,
-      description: taskItem.item?.description, //original od Itema ide ovdje
-      dueDate: taskItem.dueDate ? this.datePipe.transform(taskItem.dueDate, 'dd.MM.yy') : null
+  recurringItems$ = this.taskTemplateExtendedService.recurringItems$.pipe(
+    map(recurringTaskOccurrences => recurringTaskOccurrences.map(taskOccurrence => ({
+      ...taskOccurrence,
+      description: taskOccurrence.taskTemplate?.description,
+      dueDate: taskOccurrence.dueDate ? this.datePipe.transform(taskOccurrence.dueDate, 'dd.MM.yy') : null
     })))
   );
 
-  weekData$ = this.itemExtendedService.weekData$.pipe(
+  weekData$ = this.taskTemplateExtendedService.weekData$.pipe(
     map(weekdata => weekdata.map(daydata => ({
       weekDayDate: daydata.weekDayDate!,
-      items$: of(daydata.itemTasks!).pipe(
-        map(itemTasks => itemTasks.map(itemTask => ({
-          ...itemTask,
-          originalDescription: itemTask.item?.description,
-          dueDate: itemTask.dueDate ? this.datePipe.transform(itemTask.dueDate, 'dd.MM.yy') : null
+      items$: of(daydata.taskOccurrences!).pipe(
+        map(taskOccurrences => taskOccurrences.map(taskOccurrence => ({
+          ...taskOccurrence,
+          originalDescription: taskOccurrence.taskTemplate?.description,
+          dueDate: taskOccurrence.dueDate ? this.datePipe.transform(taskOccurrence.dueDate, 'dd.MM.yy') : null
         })))
       )
     })))
@@ -136,7 +135,7 @@ export class HomeComponent implements OnInit {
   }
 
   openNew() {
-    this.dialogService.open(EditItemDialogComponent, {});
+    this.dialogService.open(EditTaskDialogComponent, {});
   }
 
   createNewNotepad() {

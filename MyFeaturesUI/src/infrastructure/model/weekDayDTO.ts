@@ -9,11 +9,11 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { ItemTaskDto } from './itemTaskDto';
+import { TaskOccurrenceDto } from './taskOccurrenceDto';
 
 
 export interface WeekDayDto { 
     weekDayDate?: string;
-    itemTasks?: Array<ItemTaskDto> | null;
+    taskOccurrences?: Array<TaskOccurrenceDto> | null;
 }
 

@@ -1,8 +1,8 @@
 ﻿namespace MyFeatures.DTO
 {
-    public class CommitItemTaskDto
+    public class CommitTaskOccurrenceDto
     {
-        public int ItemTaskId { get; set; }
+        public int TaskOccurrenceId { get; set; }
         public DateTime? CommitDay { get; set; }
     }
 

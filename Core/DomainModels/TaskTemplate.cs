@@ -2,7 +2,7 @@
 
 namespace Core.DomainModels
 {
-    public class Item
+    public class TaskTemplate
     {
         public int Id { get; set; }
         public string Description { get; set; }

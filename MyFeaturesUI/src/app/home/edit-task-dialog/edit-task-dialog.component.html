@@ -1,6 +1,6 @@
 <form [formGroup]="form" style="height: 500px">
   <div class="field flex flex-column">
-    <label for="description">* {{ "editItem.description" | translate }}</label>
+    <label for="description">* {{ "editTask.description" | translate }}</label>
     <input
       id="description"
       type="text"
@@ -11,28 +11,28 @@
     @if ( this.form.get('description')?.invalid &&
     this.form.get('description')?.dirty) {
     <small class="ng-dirty ng-invalid">
-      {{ "editItem.description.required" | translate }}
+      {{ "editTask.description.required" | translate }}
     </small>
     }
   </div>
 
-  @if (itemTask.item?.recurring && itemTask.committedDate) {
+  @if (taskOccurrence.taskTemplate?.recurring && taskOccurrence.committedDate) {
   <div class="field flex flex-column">
     <label for="originalDescription">{{
-      "editItem.originalDescription" | translate
+      "editTask.originalDescription" | translate
     }}</label>
     <input
       id="originalDescription"
       type="text"
       pInputText
-      [value]="itemTask.item!.description"
+      [value]="taskOccurrence.taskTemplate!.description"
       [disabled]="true"
     />
   </div>
   }
 
   <div class="field">
-    <label for="recurring">* {{ "editItem.taskType" | translate }} </label>
+    <label for="recurring">* {{ "editTask.taskType" | translate }} </label>
     <p-selectButton
       id="recurring"
       [options]="stateOptions"
@@ -44,14 +44,14 @@
     @if ( this.form.get('recurring')?.invalid &&
     this.form.get('recurring')?.dirty) {
     <small class="ng-dirty ng-invalid">
-      {{ "editItem.recurring.required" | translate }}
+      {{ "editTask.recurring.required" | translate }}
     </small>
     }
   </div>
 
   <div class="field">
     <label class="w-full" for="dueDate"
-      >{{ "editItem.dueDate" | translate }}
+      >{{ "editTask.dueDate" | translate }}
     </label>
     <p-calendar
       id="dueDate"
@@ -63,7 +63,7 @@
 
   <div class="field">
     <label for="renewOnDueDate"
-      >{{ "editItem.renewOnDueDate" | translate }}
+      >{{ "editTask.renewOnDueDate" | translate }}
     </label>
     <p-selectButton
       id="renewOnDueDate"
@@ -85,7 +85,7 @@
           inputId="days"
         />
         <label for="days" class="ml-2">
-          {{ "editItem.days" | translate }}
+          {{ "editTask.days" | translate }}
         </label>
       </div>
 
@@ -97,7 +97,7 @@
           inputId="months"
         />
         <label for="months" class="ml-2">
-          {{ "editItem.months" | translate }}
+          {{ "editTask.months" | translate }}
         </label>
       </div>
     </div>
@@ -105,7 +105,7 @@
 
   <div class="field">
     <label class="w-full" for="intervalValue"
-      >{{ "editItem.intervalValue" | translate }}
+      >{{ "editTask.intervalValue" | translate }}
     </label>
     <p-inputNumber id="intervalValue" formControlName="intervalValue">
     </p-inputNumber>
@@ -125,5 +125,5 @@
   [label]="'save' | translate"
   icon="pi pi-check"
   class="p-button-text"
-  (click)="saveItem()"
+  (click)="saveTaskOccurrence()"
 ></button>

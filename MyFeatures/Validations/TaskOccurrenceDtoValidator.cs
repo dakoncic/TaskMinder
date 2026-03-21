@@ -4,20 +4,20 @@ using MyFeatures.DTO;
 namespace MyFeatures.Validations
 {
     //automatski radi bez da manualno ja moram postavit
-    public class ItemTaskDtoValidator : AbstractValidator<ItemTaskDto>
+    public class TaskOccurrenceDtoValidator : AbstractValidator<TaskOccurrenceDto>
     {
-        public ItemTaskDtoValidator()
+        public TaskOccurrenceDtoValidator()
         {
             // Validate the Description in the main DTO
             RuleFor(dto => dto.Description)
                 .NotEmpty()
                 .WithMessage("Description is required.");
 
-            When(dto => dto.Item != null, () =>
+            When(dto => dto.TaskTemplate != null, () =>
             {
-                RuleFor(dto => dto.Item.Description)
+                RuleFor(dto => dto.TaskTemplate.Description)
                     .NotEmpty()
-                    .WithMessage("Item description is required.");
+                    .WithMessage("Task template description is required.");
             });
         }
     }

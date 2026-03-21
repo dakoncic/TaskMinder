@@ -7,10 +7,10 @@ import { DragDropModule } from 'primeng/dragdrop';
 import { DialogService } from 'primeng/dynamicdialog';
 import { TableModule } from 'primeng/table';
 import { Observable } from 'rxjs';
-import { ItemTaskDto } from '../../../infrastructure';
-import { ItemExtendedService } from '../../extended-services/item-extended-service';
+import { TaskOccurrenceDto } from '../../../infrastructure';
+import { TaskTemplateExtendedService } from '../../extended-services/task-template-extended-service';
 import { APPLICATION_JSON } from '../../shared/constants';
-import { EditItemDialogComponent } from '../edit-item-dialog/edit-item-dialog.component';
+import { EditTaskDialogComponent } from '../edit-task-dialog/edit-task-dialog.component';
 
 @Component({
   selector: 'app-todo',
@@ -27,11 +27,11 @@ import { EditItemDialogComponent } from '../edit-item-dialog/edit-item-dialog.co
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TodoComponent {
-  private confirmationService = inject(ConfirmationService);
-  private itemExtendedService = inject(ItemExtendedService);
-  private dialogService = inject(DialogService);
-  private datePipe = inject(DatePipe);
-  private translate = inject(TranslateService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly taskTemplateExtendedService = inject(TaskTemplateExtendedService);
+  private readonly dialogService = inject(DialogService);
+  private readonly datePipe = inject(DatePipe);
+  private readonly translate = inject(TranslateService);
 
   @Input() items$!: Observable<any[]>;
   @Input() weekDayDate!: string;
@@ -77,19 +77,19 @@ export class TodoComponent {
     const data = event.dataTransfer?.getData(APPLICATION_JSON);
     const rowData = JSON.parse(data!);
 
-    //null je kad dropam item al nije promjenio poziciju ili ga pomičem na drugi dan#
+    //null je kad dropam task, ali nije promijenio poziciju ili ga pomičem na drugi dan#
     if (this.newIndex !== null && this.newIndex !== this.originalIndex) {
       const formattedDate = this.formatDate(rowData.committedDate);
-      this.itemExtendedService.updateItemTaskIndex(rowData.id, formattedDate, this.newIndex);
+      this.taskTemplateExtendedService.reorderTaskOccurrence(rowData.id, formattedDate, this.newIndex);
     }
 
-    //logika za commitanje itema na neki drugi dan#
+    //logika za commitanje taska na neki drugi dan#
     const committedDate = this.formatDate(rowData.committedDate);
     const weekDayDateFormatted = this.formatDate(this.weekDayDate);
 
-    //sad provjera ako item želim prebacit na neki drugi dan, onda zovi backend#
+    //sad provjera ako task želim prebacit na neki drugi dan, onda zovi backend#
     if (committedDate !== weekDayDateFormatted) {
-      this.itemExtendedService.commitItem(rowData.id, this.weekDayDate);
+      this.taskTemplateExtendedService.commitTaskOccurrence(rowData.id, this.weekDayDate);
     }
 
     this.newIndex = null;
@@ -125,29 +125,29 @@ export class TodoComponent {
     }
   }
 
-  completeItem(itemTask: ItemTaskDto) {
-    this.itemExtendedService.completeItem(itemTask.id!);
+  completeTaskOccurrence(taskOccurrence: TaskOccurrenceDto) {
+    this.taskTemplateExtendedService.completeTaskOccurrence(taskOccurrence.id!);
   }
 
-  editItem(itemTask: ItemTaskDto) {
-    this.dialogService.open(EditItemDialogComponent, {
+  editTaskOccurrence(taskOccurrence: TaskOccurrenceDto) {
+    this.dialogService.open(EditTaskDialogComponent, {
       data: {
-        itemTask: itemTask
+        taskOccurrence: taskOccurrence
       }
     });
   }
 
-  returnItemTaskToGroup(itemTask: ItemTaskDto) {
-    this.itemExtendedService.commitItem(itemTask.id!, null);
+  returnTaskOccurrenceToGroup(taskOccurrence: TaskOccurrenceDto) {
+    this.taskTemplateExtendedService.commitTaskOccurrence(taskOccurrence.id!, null);
   }
 
-  deleteItem(itemTask: ItemTaskDto) {
+  deleteTaskTemplate(taskOccurrence: TaskOccurrenceDto) {
     this.confirmationService.confirm({
       header: this.translate.instant('deleteConfirmation'),
       acceptLabel: this.translate.instant('confirm'),
       rejectLabel: this.translate.instant('cancel'),
       accept: () => {
-        this.itemExtendedService.deleteItem(itemTask.item!.id!);
+        this.taskTemplateExtendedService.deleteTaskTemplate(taskOccurrence.taskTemplate!.id!);
       }
     });
   }

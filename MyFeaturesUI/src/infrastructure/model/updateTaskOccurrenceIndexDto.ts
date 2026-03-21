@@ -11,9 +11,9 @@
  */
 
 
-export interface UpdateItemIndexDto { 
-    itemId?: number;
+export interface UpdateTaskOccurrenceIndexDto { 
+    taskOccurrenceId?: number;
+    commitDay?: string;
     newIndex?: number;
-    recurring?: boolean;
 }
 

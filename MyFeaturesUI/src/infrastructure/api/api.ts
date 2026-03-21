@@ -1,5 +1,5 @@
-export * from './item.service';
-import { ItemService } from './item.service';
 export * from './notepad.service';
 import { NotepadService } from './notepad.service';
-export const APIS = [ItemService, NotepadService];
+export * from './taskTemplate.service';
+import { TaskTemplateService } from './taskTemplate.service';
+export const APIS = [NotepadService, TaskTemplateService];

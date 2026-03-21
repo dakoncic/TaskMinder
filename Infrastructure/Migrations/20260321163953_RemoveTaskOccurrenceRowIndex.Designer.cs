@@ -4,6 +4,7 @@ using Infrastructure.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(MyFeaturesDbContext))]
-    partial class MyFeaturesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260321163953_RemoveTaskOccurrenceRowIndex")]
+    partial class RemoveTaskOccurrenceRowIndex
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -64,7 +67,7 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("DueDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("TaskTemplateId")
+                    b.Property<int>("ItemId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -79,10 +82,10 @@ namespace Infrastructure.Migrations
                     b.HasIndex("DueDate")
                         .HasDatabaseName("IDX_DueDate");
 
-                    b.HasIndex("TaskTemplateId")
-                        .HasDatabaseName("IDX_TaskTemplateID");
+                    b.HasIndex("ItemId")
+                        .HasDatabaseName("IDX_ItemID");
 
-                    b.ToTable("TaskOccurrences", (string)null);
+                    b.ToTable("ItemTasks", (string)null);
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.TaskTemplate", b =>
@@ -118,14 +121,14 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TaskTemplates", (string)null);
+                    b.ToTable("Items", (string)null);
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.TaskOccurrence", b =>
                 {
                     b.HasOne("Infrastructure.Entities.TaskTemplate", "TaskTemplate")
                         .WithMany("TaskOccurrences")
-                        .HasForeignKey("TaskTemplateId")
+                        .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

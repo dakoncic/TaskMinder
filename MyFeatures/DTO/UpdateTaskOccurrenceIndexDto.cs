@@ -1,8 +1,8 @@
 ﻿namespace MyFeatures.DTO
 {
-    public class UpdateItemTaskIndexDto
+    public class UpdateTaskOccurrenceIndexDto
     {
-        public int ItemTaskId { get; set; }
+        public int TaskOccurrenceId { get; set; }
 
         public DateTime CommitDay { get; set; }
 

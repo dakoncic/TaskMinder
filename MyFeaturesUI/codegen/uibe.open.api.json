@@ -5,438 +5,11 @@
     "version": "1.0"
   },
   "paths": {
-    "/api/Item/CreateItemAndTask": {
-      "post": {
-        "tags": ["Item"],
-        "operationId": "CreateItemAndTask",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ItemTaskDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ItemTaskDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/ItemTaskDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Item/GetItemTaskById/{id}": {
-      "get": {
-        "tags": ["Item"],
-        "operationId": "GetItemTaskById",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ItemTaskDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ItemTaskDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ItemTaskDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Item/UpdateItemAndTask/{id}": {
-      "put": {
-        "tags": ["Item"],
-        "operationId": "UpdateItemAndTask",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ItemTaskDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ItemTaskDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/ItemTaskDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Item/DeleteItemAndTasks/{id}": {
-      "delete": {
-        "tags": ["Item"],
-        "operationId": "DeleteItemAndTasks",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Item/CompleteItemTask/{itemTaskId}": {
-      "post": {
-        "tags": ["Item"],
-        "operationId": "CompleteItemTask",
-        "parameters": [
-          {
-            "name": "itemTaskId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Item/CommitItemTask": {
-      "post": {
-        "tags": ["Item"],
-        "operationId": "CommitItemTask",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CommitItemTaskDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CommitItemTaskDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/CommitItemTaskDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Item/ReorderItemInsideGroup": {
-      "post": {
-        "tags": ["Item"],
-        "operationId": "ReorderItemInsideGroup",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateItemIndexDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateItemIndexDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateItemIndexDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Item/ReorderItemTaskInsideGroup": {
-      "post": {
-        "tags": ["Item"],
-        "operationId": "ReorderItemTaskInsideGroup",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateItemTaskIndexDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateItemTaskIndexDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateItemTaskIndexDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Item/GetOneTimeItemTasks": {
-      "get": {
-        "tags": ["Item"],
-        "operationId": "GetOneTimeItemTasks",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ItemTaskDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ItemTaskDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ItemTaskDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Item/GetRecurringItemTasks": {
-      "get": {
-        "tags": ["Item"],
-        "operationId": "GetRecurringItemTasks",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ItemTaskDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ItemTaskDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ItemTaskDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Item/GetOneTimeItemTasksWithWeekdays": {
-      "get": {
-        "tags": ["Item"],
-        "operationId": "GetOneTimeItemTasksWithWeekdays",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ItemTaskDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ItemTaskDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ItemTaskDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Item/GetRecurringItemTasksWithWeekdays": {
-      "get": {
-        "tags": ["Item"],
-        "operationId": "GetRecurringItemTasksWithWeekdays",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ItemTaskDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ItemTaskDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ItemTaskDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Item/GetCommitedItemsForNextWeek": {
-      "get": {
-        "tags": ["Item"],
-        "operationId": "GetCommitedItemsForNextWeek",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/WeekDayDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/WeekDayDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/WeekDayDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/Notepad/GetAllNotepads": {
       "get": {
-        "tags": ["Notepad"],
+        "tags": [
+          "Notepad"
+        ],
         "operationId": "GetAllNotepads",
         "responses": {
           "200": {
@@ -473,7 +46,9 @@
     },
     "/api/Notepad/CreateNotepad": {
       "post": {
-        "tags": ["Notepad"],
+        "tags": [
+          "Notepad"
+        ],
         "operationId": "CreateNotepad",
         "responses": {
           "200": {
@@ -501,7 +76,9 @@
     },
     "/api/Notepad/UpdateNotepad/{id}": {
       "put": {
-        "tags": ["Notepad"],
+        "tags": [
+          "Notepad"
+        ],
         "operationId": "UpdateNotepad",
         "parameters": [
           {
@@ -559,7 +136,9 @@
     },
     "/api/Notepad/DeleteNotepad/{id}": {
       "delete": {
-        "tags": ["Notepad"],
+        "tags": [
+          "Notepad"
+        ],
         "operationId": "DeleteNotepad",
         "parameters": [
           {
@@ -578,14 +157,391 @@
           }
         }
       }
+    },
+    "/api/TaskTemplate/CreateTaskTemplateAndOccurrence": {
+      "post": {
+        "tags": [
+          "TaskTemplate"
+        ],
+        "operationId": "CreateTaskTemplateAndOccurrence",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskOccurrenceDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskOccurrenceDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskOccurrenceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/TaskTemplate/GetTaskOccurrenceById/{id}": {
+      "get": {
+        "tags": [
+          "TaskTemplate"
+        ],
+        "operationId": "GetTaskOccurrenceById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskOccurrenceDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskOccurrenceDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskOccurrenceDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TaskTemplate/UpdateTaskTemplateAndOccurrence/{id}": {
+      "put": {
+        "tags": [
+          "TaskTemplate"
+        ],
+        "operationId": "UpdateTaskTemplateAndOccurrence",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskOccurrenceDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskOccurrenceDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskOccurrenceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/TaskTemplate/DeleteTaskTemplateAndOccurrences/{id}": {
+      "delete": {
+        "tags": [
+          "TaskTemplate"
+        ],
+        "operationId": "DeleteTaskTemplateAndOccurrences",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/TaskTemplate/CompleteTaskOccurrence/{taskOccurrenceId}": {
+      "post": {
+        "tags": [
+          "TaskTemplate"
+        ],
+        "operationId": "CompleteTaskOccurrence",
+        "parameters": [
+          {
+            "name": "taskOccurrenceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/TaskTemplate/CommitTaskOccurrence": {
+      "post": {
+        "tags": [
+          "TaskTemplate"
+        ],
+        "operationId": "CommitTaskOccurrence",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommitTaskOccurrenceDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommitTaskOccurrenceDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommitTaskOccurrenceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/TaskTemplate/ReorderTaskTemplateInsideGroup": {
+      "post": {
+        "tags": [
+          "TaskTemplate"
+        ],
+        "operationId": "ReorderTaskTemplateInsideGroup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaskTemplateIndexDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaskTemplateIndexDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaskTemplateIndexDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/TaskTemplate/ReorderTaskOccurrenceInsideGroup": {
+      "post": {
+        "tags": [
+          "TaskTemplate"
+        ],
+        "operationId": "ReorderTaskOccurrenceInsideGroup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaskOccurrenceIndexDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaskOccurrenceIndexDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTaskOccurrenceIndexDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/TaskTemplate/GetOneTimeTaskOccurrences": {
+      "get": {
+        "tags": [
+          "TaskTemplate"
+        ],
+        "operationId": "GetOneTimeTaskOccurrences",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskOccurrenceDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskOccurrenceDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskOccurrenceDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TaskTemplate/GetRecurringTaskOccurrences": {
+      "get": {
+        "tags": [
+          "TaskTemplate"
+        ],
+        "operationId": "GetRecurringTaskOccurrences",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskOccurrenceDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskOccurrenceDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskOccurrenceDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TaskTemplate/GetCommittedTaskOccurrencesForNextWeek": {
+      "get": {
+        "tags": [
+          "TaskTemplate"
+        ],
+        "operationId": "GetCommittedTaskOccurrencesForNextWeek",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WeekDayDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WeekDayDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WeekDayDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
-      "CommitItemTaskDto": {
+      "CommitTaskOccurrenceDto": {
         "type": "object",
         "properties": {
-          "itemTaskId": {
+          "taskOccurrenceId": {
             "type": "integer",
             "format": "int32"
           },
@@ -598,10 +554,68 @@
         "additionalProperties": false
       },
       "IntervalType": {
-        "enum": ["Days", "Months"],
+        "enum": [
+          "Days",
+          "Months"
+        ],
         "type": "string"
       },
-      "ItemDto": {
+      "NotepadDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "rowIndex": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaskOccurrenceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "taskTemplateId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "committedDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "completionDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "taskTemplate": {
+            "$ref": "#/components/schemas/TaskTemplateDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaskTemplateDto": {
         "type": "object",
         "properties": {
           "id": {
@@ -635,87 +649,10 @@
         },
         "additionalProperties": false
       },
-      "ItemTaskDto": {
+      "UpdateTaskOccurrenceIndexDto": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "itemId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "committedDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "dueDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "completionDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "rowIndex": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "item": {
-            "$ref": "#/components/schemas/ItemDto"
-          }
-        },
-        "additionalProperties": false
-      },
-      "NotepadDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "content": {
-            "type": "string",
-            "nullable": true
-          },
-          "rowIndex": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "UpdateItemIndexDto": {
-        "type": "object",
-        "properties": {
-          "itemId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "newIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "recurring": {
-            "type": "boolean"
-          }
-        },
-        "additionalProperties": false
-      },
-      "UpdateItemTaskIndexDto": {
-        "type": "object",
-        "properties": {
-          "itemTaskId": {
+          "taskOccurrenceId": {
             "type": "integer",
             "format": "int32"
           },
@@ -730,6 +667,23 @@
         },
         "additionalProperties": false
       },
+      "UpdateTaskTemplateIndexDto": {
+        "type": "object",
+        "properties": {
+          "taskTemplateId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "recurring": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
       "WeekDayDto": {
         "type": "object",
         "properties": {
@@ -737,10 +691,10 @@
             "type": "string",
             "format": "date-time"
           },
-          "itemTasks": {
+          "taskOccurrences": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ItemTaskDto"
+              "$ref": "#/components/schemas/TaskOccurrenceDto"
             },
             "nullable": true
           }

@@ -5,13 +5,13 @@ import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DialogService } from 'primeng/dynamicdialog';
 import { TableModule } from 'primeng/table';
-import { ItemDto, ItemTaskDto } from '../../../infrastructure';
-import { ItemExtendedService } from '../../extended-services/item-extended-service';
+import { TaskOccurrenceDto, TaskTemplateDto } from '../../../infrastructure';
+import { TaskTemplateExtendedService } from '../../extended-services/task-template-extended-service';
 import { APPLICATION_JSON } from '../../shared/constants';
-import { EditItemDialogComponent } from '../edit-item-dialog/edit-item-dialog.component';
+import { EditTaskDialogComponent } from '../edit-task-dialog/edit-task-dialog.component';
 
 @Component({
-  selector: 'app-active-item-tasks-table',
+  selector: 'app-active-task-occurrences-table',
   standalone: true,
   imports: [
     CommonModule,
@@ -19,21 +19,21 @@ import { EditItemDialogComponent } from '../edit-item-dialog/edit-item-dialog.co
     ButtonModule,
     TranslateModule
   ],
-  templateUrl: './active-item-tasks-table.component.html',
-  styleUrl: './active-item-tasks-table.component.scss'
+  templateUrl: './active-task-occurrences-table.component.html',
+  styleUrl: './active-task-occurrences-table.component.scss'
 })
-export class ActiveItemTasksTableComponent {
-  @Input() items!: ItemDto[];
+export class ActiveTaskOccurrencesTableComponent {
+  @Input() items!: TaskTemplateDto[];
   @Input() columns!: any[];
   @Input() currentDay!: string | null;
   @Input() title!: string;
   @Input() isRecurring!: boolean;
   @Output() currentDayChange = new EventEmitter<any>();
 
-  private confirmationService = inject(ConfirmationService);
-  private itemExtendedService = inject(ItemExtendedService);
-  private dialogService = inject(DialogService);
-  private translate = inject(TranslateService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly taskTemplateExtendedService = inject(TaskTemplateExtendedService);
+  private readonly dialogService = inject(DialogService);
+  private readonly translate = inject(TranslateService);
 
   newIndex: number | null = null;
   originalIndex!: number;
@@ -59,31 +59,31 @@ export class ActiveItemTasksTableComponent {
     const data = event.dataTransfer?.getData(APPLICATION_JSON);
     const rowData = JSON.parse(data!);
 
-    //null je kad dropam item al nije promjenio poziciju ili ga pomičem na drugi dan#
+    //null je kad dropam task, ali nije promijenio poziciju ili ga pomičem na drugi dan#
     if (this.newIndex !== null && this.newIndex !== this.originalIndex) {
-      this.itemExtendedService.updateItemIndex(rowData.item.id, this.newIndex, recurring);
+      this.taskTemplateExtendedService.reorderTaskTemplate(rowData.taskTemplate.id, this.newIndex, recurring);
     }
 
     this.newIndex = null;
   }
 
-  assignItemToSelectedWeekday(itemTask: ItemTaskDto) {
+  assignTaskOccurrenceToSelectedWeekday(taskOccurrence: TaskOccurrenceDto) {
     if (this.currentDay) {
-      this.itemExtendedService.commitItem(itemTask.id!, this.currentDay);
+      this.taskTemplateExtendedService.commitTaskOccurrence(taskOccurrence.id!, this.currentDay);
     }
   }
 
-  editItem(itemTask: ItemTaskDto) {
+  editTaskOccurrence(taskOccurrence: TaskOccurrenceDto) {
     this.resetCurrentDay();
 
-    this.dialogService.open(EditItemDialogComponent, {
+    this.dialogService.open(EditTaskDialogComponent, {
       data: {
-        itemTask: itemTask
+        taskOccurrence: taskOccurrence
       }
     });
   }
 
-  deleteItem(itemTask: ItemTaskDto) {
+  deleteTaskTemplate(taskOccurrence: TaskOccurrenceDto) {
     this.resetCurrentDay();
 
     this.confirmationService.confirm({
@@ -91,7 +91,7 @@ export class ActiveItemTasksTableComponent {
       acceptLabel: this.translate.instant('confirm'),
       rejectLabel: this.translate.instant('cancel'),
       accept: () => {
-        this.itemExtendedService.deleteItem(itemTask.item!.id!);
+        this.taskTemplateExtendedService.deleteTaskTemplate(taskOccurrence.taskTemplate?.id!);
       }
     });
 
@@ -99,16 +99,16 @@ export class ActiveItemTasksTableComponent {
     //switchMap će biti unsubscribe-an kada i njegov parent
     //items$ budu unsubscribe-ani, a bit će zbog async pipe-a u html-u
     // ide kroz extended servis, ne lokalno
-    // this.items$ = this.itemService.deleteItem(this.itemTask.id!)
+    // this.items$ = this.taskTemplateService.deleteTaskTemplateAndOccurrences(this.taskOccurrence.taskTemplate.id!)
     //   .pipe(
-    //     switchMap(() => this.itemService.getAllItem())
+    //     switchMap(() => this.taskTemplateService.getOneTimeTaskOccurrences())
     //   );
   }
 
-  completeItem(itemTask: ItemTaskDto) {
+  completeTaskOccurrence(taskOccurrence: TaskOccurrenceDto) {
     this.resetCurrentDay();
 
-    this.itemExtendedService.completeItem(itemTask.id!);
+    this.taskTemplateExtendedService.completeTaskOccurrence(taskOccurrence.id!);
   }
 
   private resetCurrentDay() {

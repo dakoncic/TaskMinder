@@ -28,7 +28,7 @@
         }"
         [pReorderableRow]="index"
         (dragstart)="onDragStart($event, rowData, index)"
-        (click)="assignItemToSelectedWeekday(rowData)"
+        (click)="assignTaskOccurrenceToSelectedWeekday(rowData)"
       >
         <td class="w-2rem">
           @if (!rowData.dueDate) {
@@ -47,20 +47,20 @@
               pButton
               icon="pi pi-check"
               class="p-button-rounded p-button-info mr-2"
-              (click)="completeItem(rowData)"
+              (click)="completeTaskOccurrence(rowData)"
             ></button>
             }
             <button
               pButton
               icon="pi pi-pencil"
               class="p-button-rounded p-button-success mr-2"
-              (click)="editItem(rowData)"
+              (click)="editTaskOccurrence(rowData)"
             ></button>
             <button
               pButton
               icon="pi pi-trash"
               class="p-button-rounded p-button-warning"
-              (click)="deleteItem(rowData)"
+              (click)="deleteTaskTemplate(rowData)"
             ></button>
           </div>
         </td>

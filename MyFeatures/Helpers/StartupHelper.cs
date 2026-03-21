@@ -2,7 +2,6 @@
 using Infrastructure.DAL;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
-using MyFeatures.DTO;
 using Entity = Infrastructure.Entities;
 
 namespace Infrastructure.Helpers
@@ -33,12 +32,10 @@ namespace Infrastructure.Helpers
             //mapiranja konfigurirati smjer svaki za sebe
             //.TwoWays() ne radi sa PreserveReference()
 
-            //za sad samo ovi pucaju kod mapiranja u CreateItem, bez ovog dobim 'Access Violation'
-            //cirkularna referenca
-            TypeAdapterConfig<Entity.ItemTask, ItemTask>.NewConfig()
+            TypeAdapterConfig<Entity.TaskOccurrence, TaskOccurrence>.NewConfig()
                 .PreserveReference(true);
 
-            TypeAdapterConfig<ItemTask, ItemTaskDto>.NewConfig()
+            TypeAdapterConfig<TaskOccurrence, Entity.TaskOccurrence>.NewConfig()
                 .PreserveReference(true);
         }
     }

@@ -2,7 +2,7 @@
 
 namespace MyFeatures.DTO
 {
-    public class ItemDto
+    public class TaskTemplateDto
     {
         public int Id { get; set; }
         public string Description { get; set; }

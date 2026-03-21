@@ -1,8 +1,8 @@
 ﻿namespace MyFeatures.DTO
 {
-    public class UpdateItemIndexDto
+    public class UpdateTaskTemplateIndexDto
     {
-        public int ItemId { get; set; }
+        public int TaskTemplateId { get; set; }
 
         public int NewIndex { get; set; }
 
