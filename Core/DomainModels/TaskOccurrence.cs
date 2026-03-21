@@ -10,13 +10,14 @@ namespace Core.DomainModels
         public DateTime? DueDate { get; set; }
         public string Description { get; set; } = string.Empty;
         public DateTime? CompletionDate { get; set; }
-        public TaskTemplate TaskTemplate { get; set; } = null!;
+        public required TaskTemplate TaskTemplate { get; set; }
 
         public TaskOccurrence CreateNewRecurringTask()
         {
             var newTaskOccurrence = new TaskOccurrence
             {
                 TaskTemplateId = TaskTemplateId,
+                TaskTemplate = TaskTemplate,
                 Description = TaskTemplate.Description
             };
 
