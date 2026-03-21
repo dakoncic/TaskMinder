@@ -1,8 +1,15 @@
-<div class="flex flex-column" style="height: 100%">
-  <div class="card">
-    <div class="grid">
+<div class="home-page flex flex-column">
+  <div class="card dashboard-shell">
+    <section class="dashboard-intro">
+      <div>
+        <h1 class="section-title">Planer tjedna</h1>
+      </div>
+    </section>
+
+    <section class="week-board-section">
+      <div class="grid dashboard-grid">
       @for (dayData of weekData$ | async; track dayData) {
-      <div class="col-3">
+      <div class="col-12 md:col-6 xl:col-3 day-column">
         <app-todo
           [items$]="dayData.items$"
           [weekDayDate]="dayData.weekDayDate"
@@ -11,15 +18,16 @@
         </app-todo>
       </div>
       }
-    </div>
+      </div>
+    </section>
 
-    <p-toolbar styleClass="mb-4">
-      <div class="my-2">
+    <p-toolbar styleClass="dashboard-toolbar mb-4">
+      <div class="toolbar-primary my-2">
         <button
           pButton
           [label]="'home.newTask' | translate"
           icon="pi pi-plus"
-          class="p-button-info mr-2"
+          class="p-button-info app-toolbar-button mr-2"
           (click)="openNew()"
         ></button>
       </div>
@@ -28,12 +36,14 @@
         [(ngModel)]="currentDay"
         optionLabel="name"
         optionValue="value"
+        styleClass="dashboard-day-selector"
       >
       </p-selectButton>
     </p-toolbar>
 
-    <div class="grid">
-      <div class="col-6">
+    <section class="task-lists-section">
+      <div class="grid dashboard-grid">
+      <div class="col-12 xl:col-6">
         <app-active-task-occurrences-table
           [items]="(oneTimeItems$ | async)!"
           [columns]="cols"
@@ -42,7 +52,7 @@
           [isRecurring]="false"
         ></app-active-task-occurrences-table>
       </div>
-      <div class="col-6">
+      <div class="col-12 xl:col-6">
         <app-active-task-occurrences-table
           [items]="(recurringItems$ | async)!"
           [columns]="cols"
@@ -51,24 +61,33 @@
           [isRecurring]="true"
         ></app-active-task-occurrences-table>
       </div>
-    </div>
+      </div>
+    </section>
 
-    <p-divider />
+    <p-divider styleClass="dashboard-divider" />
 
-    <button
-      pButton
-      [label]="'home.newNotepad' | translate"
-      icon="pi pi-plus"
-      class="p-button-info mr-2"
-      (click)="createNewNotepad()"
-    ></button>
+    <section class="notepads-section">
+      <div class="flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+        <div>
+          <h2 class="section-title section-title--compact">Bilješke</h2>
+        </div>
 
-    <div class="grid">
+        <button
+          pButton
+          [label]="'home.newNotepad' | translate"
+          icon="pi pi-plus"
+          class="p-button-info app-toolbar-button"
+          (click)="createNewNotepad()"
+        ></button>
+      </div>
+
+    <div class="grid dashboard-grid">
       @for (notepad of notepads$ | async; track notepad) {
-      <div class="col-6 mt-3">
+      <div class="col-12 xl:col-6">
         <app-notepad [notepad]="notepad"></app-notepad>
       </div>
       }
     </div>
+    </section>
   </div>
 </div>

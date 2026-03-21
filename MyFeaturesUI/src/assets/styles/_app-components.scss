@@ -1,0 +1,192 @@
+.task-action-btn.p-button {
+  width: var(--app-icon-button-size);
+  height: var(--app-icon-button-size);
+  border: 1px solid transparent;
+  box-shadow: none;
+}
+
+.task-action-btn.p-button:focus-visible {
+  box-shadow: var(--app-focus-ring);
+}
+
+.task-action-btn.p-button-success {
+  background: var(--app-success-soft);
+  color: var(--app-action-success-text);
+  border-color: var(--app-action-success-border);
+}
+
+.task-action-btn.p-button-info {
+  background: var(--app-accent-soft);
+  color: var(--app-action-info-text);
+  border-color: var(--app-action-info-border);
+}
+
+.task-action-btn.p-button-warning {
+  background: var(--app-warning-soft);
+  color: var(--app-action-warning-text);
+  border-color: var(--app-action-warning-border);
+}
+
+.task-action-btn.p-button-danger {
+  background: var(--app-danger-soft);
+  color: var(--app-action-danger-text);
+  border-color: var(--app-action-danger-border);
+}
+
+.task-action-btn.p-button:hover {
+  transform: translateY(var(--app-lift-distance));
+  box-shadow: var(--app-action-shadow);
+}
+
+.app-soft-button.p-button {
+  border-radius: var(--app-radius-control);
+  font-weight: 700;
+  box-shadow: none;
+  border: 1px solid transparent;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+}
+
+.app-soft-button.p-button:hover {
+  transform: translateY(var(--app-lift-distance));
+  box-shadow: var(--app-action-shadow);
+}
+
+.app-soft-button--success.p-button {
+  background: var(--app-success-soft);
+  color: var(--app-action-success-text);
+  border-color: var(--app-action-success-border);
+}
+
+.app-soft-button--success.p-button:enabled:hover {
+  background: var(--app-action-success-bg-hover);
+  color: var(--app-action-success-text-hover);
+}
+
+.app-soft-button--success.p-button:disabled {
+  opacity: 0.65;
+}
+
+.app-soft-button--danger.p-button {
+  background: var(--app-surface-strong);
+  color: var(--app-action-danger-text);
+  border-color: var(--app-action-danger-border);
+}
+
+.app-soft-button--danger.p-button:enabled:hover {
+  background: var(--app-danger-soft);
+  color: var(--app-action-danger-text-hover);
+}
+
+.app-toolbar-button.p-button {
+  font-weight: 700;
+  border-radius: var(--app-radius-md);
+  box-shadow: var(--app-shadow-action-lg);
+}
+
+.app-panel {
+  height: 100%;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-md);
+  background: linear-gradient(180deg, var(--app-panel-bg-start) 0%, var(--app-panel-bg-end) 100%);
+  box-shadow: var(--app-shadow-sm);
+  overflow: hidden;
+}
+
+.app-panel__caption {
+  min-height: var(--app-panel-title-height);
+}
+
+.app-panel--day .app-panel__caption {
+  min-height: var(--app-day-panel-title-height);
+}
+
+.app-panel__title {
+  font-size: var(--app-panel-title-size);
+  font-weight: 700;
+  color: var(--app-heading);
+  letter-spacing: -0.02em;
+}
+
+.app-panel__drag-handle {
+  color: var(--app-text-muted);
+  font-size: 0.95rem;
+}
+
+.app-panel__row-text {
+  color: var(--app-text);
+  line-height: var(--app-text-line-height);
+}
+
+.app-panel__actions-cell {
+  width: var(--app-actions-width-compact);
+}
+
+.app-panel--wide-actions .app-panel__actions-cell {
+  width: var(--app-actions-width-wide);
+}
+
+.app-panel .p-datatable-wrapper {
+  border-top: 1px solid var(--app-border-subtle);
+}
+
+.app-panel .p-datatable-tbody > tr {
+  transition: background-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.app-panel .p-datatable-tbody > tr:hover {
+  background: var(--app-row-hover-bg);
+}
+
+.p-toolbar {
+  border-radius: var(--app-radius-md);
+  border: 1px solid var(--app-border);
+  background: linear-gradient(180deg, var(--app-toolbar-bg-start) 0%, var(--app-toolbar-bg-end) 100%);
+}
+
+.p-selectbutton .p-button {
+  font-weight: 600;
+}
+
+.p-datatable .p-datatable-header {
+  background: transparent;
+  border: 0;
+  padding: 1.15rem 1.25rem 0.6rem;
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  padding: 0.8rem 0.75rem;
+  border-color: var(--app-border-soft);
+}
+
+.p-datatable .p-datatable-tbody > tr:last-child > td {
+  border-bottom: 0;
+}
+
+.p-button.p-button-icon-only.p-button-rounded {
+  height: var(--app-icon-button-size);
+  width: var(--app-icon-button-size);
+}
+
+.notepad-row-index .p-inputnumber-input {
+  width: 3.5rem;
+}
+
+.p-inputnumber-input,
+.p-inputtext,
+.p-dropdown,
+.p-selectbutton .p-button {
+  border-radius: var(--app-radius-control);
+}
+
+.p-datepicker table td {
+  padding: unset;
+}
+
+.drop-column {
+  border: 1px solid transparent;
+  transition: border-color .2s;
+}
+
+.p-draggable-enter {
+  border-color: var(--primary-color);
+}

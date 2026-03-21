@@ -1,12 +1,17 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
 .committed-background-color {
-  background-color: papayawhip;
+  background: linear-gradient(180deg, var(--app-committed-bg-start) 0%, var(--app-committed-bg-end) 100%);
 }
 
 .disable-row-reorder {
-  background-color: lightgray;
-  pointer-events: none; /* Disable pointer events for the row */
+  background: var(--app-surface-muted-strong);
+  pointer-events: none;
 }
 
 .disable-row-reorder button {
-  pointer-events: all; /* Re-enable pointer events for buttons */
+  pointer-events: all;
 }

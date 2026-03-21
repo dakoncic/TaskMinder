@@ -1,0 +1,60 @@
+:host {
+	display: block;
+}
+
+.notepad-card {
+	border: 1px solid var(--app-border);
+	border-radius: var(--app-radius-md);
+	background: var(--app-surface-strong);
+	box-shadow: var(--app-shadow-sm);
+	padding: 1rem;
+}
+
+.notepad-card__header {
+	margin-bottom: 0.9rem;
+}
+
+.notepad-card__title {
+	margin: 0;
+	color: var(--app-heading);
+	font-size: 1.2rem;
+	font-weight: 700;
+}
+
+.notepad-editor-shell {
+	border: 1px solid var(--app-border);
+	border-radius: var(--app-radius-control);
+	overflow: hidden;
+	background: var(--app-surface-strong);
+}
+
+:host ::ng-deep .notepad-editor .ql-toolbar.ql-snow,
+:host ::ng-deep .notepad-editor .ql-container.ql-snow {
+	border-color: var(--app-border);
+}
+
+:host ::ng-deep .notepad-editor .ql-toolbar.ql-snow {
+	border-top: 0;
+	border-left: 0;
+	border-right: 0;
+	background: var(--app-surface-muted);
+}
+
+:host ::ng-deep .notepad-editor .ql-container.ql-snow {
+	border-left: 0;
+	border-right: 0;
+	border-bottom: 0;
+	background: var(--app-surface-strong);
+}
+
+:host ::ng-deep .notepad-editor .p-editor-container {
+	border: 0;
+	background: transparent;
+}
+
+.notepad-card__actions {
+	flex-wrap: wrap;
+	margin-top: 1.1rem;
+	padding-top: 1rem;
+	border-top: 1px solid var(--app-border);
+}

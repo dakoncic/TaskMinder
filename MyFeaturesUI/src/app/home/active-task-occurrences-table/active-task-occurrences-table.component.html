@@ -1,4 +1,4 @@
-<div pDroppable="true" (drop)="onDrop($event, isRecurring)">
+<div pDroppable="true" (drop)="onDrop($event, isRecurring)" class="app-panel">
   <p-table
     [value]="items"
     [columns]="columns"
@@ -8,9 +8,9 @@
   >
     <ng-template pTemplate="caption">
       <div
-        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+        class="app-panel__caption flex flex-column md:flex-row md:justify-content-between md:align-items-center"
       >
-        <h5 class="m-0">{{ title | translate }}</h5>
+        <h5 class="m-0 app-panel__title">{{ title | translate }}</h5>
       </div>
     </ng-template>
     <ng-template
@@ -32,34 +32,34 @@
       >
         <td class="w-2rem">
           @if (!rowData.dueDate) {
-          <span class="pi pi-bars" pReorderableRowHandle></span>
+          <span class="pi pi-bars app-panel__drag-handle" pReorderableRowHandle></span>
           }
         </td>
         @for (col of columns; track col) {
         <td [ngStyle]="{ 'text-align': col.align }">
-          <span>{{ rowData[col.field] }}</span>
+          <span class="app-panel__row-text">{{ rowData[col.field] }}</span>
         </td>
         }
-        <td class="w-8rem">
-          <div class="flex justify-content-end">
+        <td class="app-panel__actions-cell">
+          <div class="task-row-actions flex justify-content-end align-items-center gap-2">
             @if (!isRecurring) {
             <button
               pButton
               icon="pi pi-check"
-              class="p-button-rounded p-button-info mr-2"
+              class="p-button-rounded p-button-success task-action-btn"
               (click)="completeTaskOccurrence(rowData)"
             ></button>
             }
             <button
               pButton
               icon="pi pi-pencil"
-              class="p-button-rounded p-button-success mr-2"
+              class="p-button-rounded p-button-info task-action-btn"
               (click)="editTaskOccurrence(rowData)"
             ></button>
             <button
               pButton
               icon="pi pi-trash"
-              class="p-button-rounded p-button-warning"
+              class="p-button-rounded p-button-danger task-action-btn"
               (click)="deleteTaskTemplate(rowData)"
             ></button>
           </div>

@@ -18,34 +18,7 @@ $gutter: 1rem; //for primeflex grid system
 @import "primeflex/primeflex.css";
 @import "primeicons/primeicons.css";
 
+@import "./assets/styles/app-tokens";
+@import "./assets/styles/app-base";
+@import "./assets/styles/app-components";
 
-.drop-column {
-  border: 1px solid transparent;
-  transition: border-color .2s;
-}
-
-.p-draggable-enter {
-  border-color: var(--primary-color); /* Ensure this variable is defined or use a specific color */
-}
-
-
-//privremeno overrideam ovdje default stilove da vidim kak će izgledat i da se ne zagubi
-.p-datatable .p-datatable-tbody > tr > td {
-  padding: unset;
-  padding-left: 0.5rem;
-}
-
-.p-button.p-button-icon-only.p-button-rounded {
-  height: 2rem;
-  width: 2rem;
-}
-
-.notepad-row-index {
-  .p-inputnumber-input {
-    width: 3rem;
-  }
-}
-
-.p-datepicker table td {
-  padding: unset;
-}

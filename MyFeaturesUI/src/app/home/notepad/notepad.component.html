@@ -1,17 +1,24 @@
-<form [formGroup]="form">
-  <p-editor
-    id="content"
-    formControlName="content"
-    [style]="{ height: '640px' }"
-  >
-  </p-editor>
+<form [formGroup]="form" class="notepad-card">
+  <div class="notepad-card__header">
+    <h3 class="notepad-card__title">Bilješka</h3>
+  </div>
 
-  <div class="flex mt-3">
+  <div class="notepad-editor-shell">
+    <p-editor
+      id="content"
+      formControlName="content"
+      class="notepad-editor"
+      [style]="{ height: '640px' }"
+    >
+    </p-editor>
+  </div>
+
+  <div class="notepad-card__actions flex mt-3 align-items-center gap-2">
     <button
       pButton
       [label]="'notepad.save' | translate"
       icon="pi pi-save"
-      class="p-button-success mr-2"
+      class="app-soft-button app-soft-button--success"
       (click)="saveNotepad()"
       [disabled]="form.invalid || !form.dirty"
     ></button>
@@ -19,7 +26,7 @@
       pButton
       [label]="'notepad.delete' | translate"
       icon="pi pi-trash"
-      class="p-button-danger mr-2"
+      class="app-soft-button app-soft-button--danger"
       (click)="deleteNotepad()"
     ></button>
     <p-inputNumber class="notepad-row-index ml-auto" formControlName="rowIndex">

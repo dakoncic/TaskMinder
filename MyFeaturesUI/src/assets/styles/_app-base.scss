@@ -1,0 +1,32 @@
+html,
+body {
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top left, rgba(29, 78, 216, 0.08), transparent 26%),
+    linear-gradient(180deg, #f8fbff 0%, var(--app-bg) 100%);
+}
+
+body {
+  color: var(--app-text);
+}
+
+.card {
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-lg);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-sm);
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--app-heading);
+  letter-spacing: -0.02em;
+}
+
+.section-subtitle {
+  margin: 0.35rem 0 0;
+  color: var(--app-text-muted);
+  font-size: 0.95rem;
+}

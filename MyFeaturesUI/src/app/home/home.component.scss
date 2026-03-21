@@ -1,1 +1,48 @@
+:host {
+	display: block;
+	min-height: 100%;
+}
+
+.home-page {
+	min-height: 100%;
+}
+
+.dashboard-shell {
+	padding: 1.5rem;
+	background: var(--app-surface-strong);
+}
+
+.dashboard-intro {
+	margin-bottom: calc(var(--app-section-gap) - 0.25rem);
+}
+
+.dashboard-grid {
+	margin-top: 0;
+	margin-left: calc(var(--app-grid-gap) * -1);
+	margin-right: calc(var(--app-grid-gap) * -1);
+}
+
+.dashboard-grid > [class*='col-'] {
+	padding: var(--app-grid-gap);
+}
+
+.week-board-section,
+.task-lists-section,
+.notepads-section {
+	margin-bottom: var(--app-section-gap);
+}
+
+.dashboard-toolbar {
+	margin-top: 0.5rem;
+}
+
+.section-title--compact {
+	font-size: 1.3rem;
+}
+
+@media screen and (max-width: 768px) {
+	.dashboard-shell {
+		padding: 1rem;
+	}
+}
 

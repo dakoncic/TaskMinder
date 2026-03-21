@@ -16,7 +16,11 @@ namespace Infrastructure.Helpers
                 try
                 {
                     var context = services.GetRequiredService<MyFeaturesDbContext>();
-                    context.Database.Migrate(); // This applies any pending migrations
+
+                    if (context.Database.IsRelational())
+                    {
+                        context.Database.Migrate();
+                    }
                 }
                 catch (Exception ex)
                 {

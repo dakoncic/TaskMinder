@@ -6,6 +6,7 @@ using Infrastructure.DAL;
 using Infrastructure.Helpers;
 using Infrastructure.Interfaces.IRepository;
 using Infrastructure.Repository;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyFeatures.Helpers;
 using MyFeatures.Middlewares;
@@ -37,6 +38,8 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<ITaskTemplateService, TaskTemplateService>();
 builder.Services.AddScoped<INotepadService, NotepadService>();
 
+builder.Services.AddProblemDetails();
+
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     //ovo je dodatak konfiguracije za cirkularnu referencu
@@ -49,6 +52,23 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 //omogućuje automatsku validaciju
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var problemDetails = new ValidationProblemDetails(context.ModelState)
+        {
+            Status = StatusCodes.Status400BadRequest,
+            Title = "One or more validation errors occurred.",
+            Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+            Instance = context.HttpContext.Request.Path
+        };
+
+        problemDetails.Extensions["traceId"] = context.HttpContext.TraceIdentifier;
+
+        return new BadRequestObjectResult(problemDetails);
+    };
+});
 
 //mapster registracija nakon servisa
 StartupHelper.ConfigureMapster();

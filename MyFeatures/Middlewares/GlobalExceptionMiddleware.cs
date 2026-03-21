@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using Core.Exceptions;
+using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Text.Json;
 
 namespace MyFeatures.Middlewares
@@ -29,15 +31,25 @@ namespace MyFeatures.Middlewares
         private Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             var response = context.Response;
-            response.ContentType = "application/json";
+            response.ContentType = "application/problem+json";
 
-            response.StatusCode = exception switch
+            var problemDetails = exception switch
             {
-                Core.Exceptions.NotFoundException => (int)HttpStatusCode.NotFound,
-                //Core.Exceptions.BadRequestException => (int)HttpStatusCode.BadRequest,
-                //Core.Exceptions.NotImplementedException => (int)HttpStatusCode.NotImplemented,
-                _ => (int)HttpStatusCode.InternalServerError
+                NotFoundException => CreateProblemDetails(
+                    context,
+                    (int)HttpStatusCode.NotFound,
+                    "Resource not found.",
+                    exception.Message,
+                    "https://tools.ietf.org/html/rfc9110#section-15.5.5"),
+                _ => CreateProblemDetails(
+                    context,
+                    (int)HttpStatusCode.InternalServerError,
+                    "An unexpected error occurred.",
+                    "The server encountered an unexpected error.",
+                    "https://tools.ietf.org/html/rfc9110#section-15.6.1")
             };
+
+            response.StatusCode = problemDetails.Status ?? (int)HttpStatusCode.InternalServerError;
 
             _logger.LogError(
                 exception,
@@ -46,13 +58,25 @@ namespace MyFeatures.Middlewares
                 context.Request.Path,
                 response.StatusCode);
 
-            var result = JsonSerializer.Serialize(new
-            {
-                statusCode = response.StatusCode,
-                message = exception.Message
-            });
+            var result = JsonSerializer.Serialize(problemDetails);
 
             return response.WriteAsync(result);
+        }
+
+        private static ProblemDetails CreateProblemDetails(HttpContext context, int statusCode, string title, string detail, string type)
+        {
+            var problemDetails = new ProblemDetails
+            {
+                Status = statusCode,
+                Title = title,
+                Detail = detail,
+                Type = type,
+                Instance = context.Request.Path
+            };
+
+            problemDetails.Extensions["traceId"] = context.TraceIdentifier;
+
+            return problemDetails;
         }
     }
 }

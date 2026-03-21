@@ -37,15 +37,41 @@ Each task can have an optional due date. When a due date is within the next 7 da
 Repeating tasks can be set to recreate automatically after a specified interval, such as reminding you to register your car annually.
 This greatly reduces friction in helping us complete what we plan to do.
 
+## Architecture
+
+The solution is split into clear backend and frontend layers:
+
+- `MyFeatures` contains the ASP.NET Core API, controllers, DTOs, validation, middleware, and startup composition.
+- `Core` contains the application and domain logic, including `TaskTemplateService` and the task recurrence and ordering rules.
+- `Infrastructure` contains EF Core entities, `MyFeaturesDbContext`, repositories, and migrations.
+- `MyFeaturesUI` contains the Angular frontend and generated API client.
+
+## Stack
+
+- .NET 8 / ASP.NET Core Web API
+- EF Core 8
+- Angular 17
+- FluentValidation
+- Mapster
+- Serilog
+- xUnit + Moq + EF Core InMemory for backend tests
+
+## What This Project Shows
+
+- Clear separation between API, service/domain, and persistence concerns.
+- A domain model that distinguishes task templates from concrete task occurrences.
+- Automated backend tests for critical task flows such as scheduling, recurrence, and validation.
+- Structured error handling and logging for operational visibility.
+
+## Running The Project
+
+- Build backend: `dotnet build .\MyFeatures.sln`
+- Run backend tests: `dotnet test Core.Tests\Core.Tests.csproj`
+- Build frontend: `cd MyFeaturesUI && npm run build`
+
 ---
 
 > "Changes that seem small and unimportant at first will compound into remarkable results if you're willing to stick with them for years. We all deal with setbacks but in the long run, the quality of our lives often depends on the quality of our habits."  
 > — *James Clear*
------
-TO DO:
-- remove comments from code
-- implement seeder for dummy data
-- make UI look nicer
-- ...
 
 
