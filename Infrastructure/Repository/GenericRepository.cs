@@ -75,7 +75,8 @@ namespace Infrastructure.Repository
 
         public async Task<TEntity?> GetFirstOrDefaultAsync(
             Expression<Func<TEntity, bool>> filter,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
+            string includeProperties = ""
             )
         {
             IQueryable<TEntity> query = _dbSet;
@@ -83,6 +84,14 @@ namespace Infrastructure.Repository
             if (filter != null)
             {
                 query = query.Where(filter);
+            }
+
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProperty);
+                }
             }
 
             if (orderBy != null)

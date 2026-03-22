@@ -13,7 +13,8 @@ namespace Infrastructure.Interfaces.IRepository
         Task<TEntity?> GetByIdAsync(int id, string includeProperties = "");
         Task<TEntity?> GetFirstOrDefaultAsync(
             Expression<Func<TEntity, bool>> filter,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
+            string includeProperties = ""
             );
 
         void Add(TEntity entity);

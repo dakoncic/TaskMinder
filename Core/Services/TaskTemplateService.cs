@@ -32,16 +32,8 @@ namespace Core.Services
 
         public async Task CreateTaskTemplateAndOccurrence(TaskOccurrence taskOccurrenceDomain)
         {
-            if (taskOccurrenceDomain.DueDate != null)
-            {
-                taskOccurrenceDomain.CommittedDate = taskOccurrenceDomain.DueDate;
-                taskOccurrenceDomain.TaskTemplate.RowIndex = await GetNewScheduledRowIndex(taskOccurrenceDomain.CommittedDate);
-            }
-            else
-            {
-                //ako je DueDate postavljen na null, onda daj index parentu
-                taskOccurrenceDomain.TaskTemplate.RowIndex = await GetNewBacklogRowIndex(taskOccurrenceDomain.TaskTemplate.Recurring);
-            }
+            SyncCommittedDateFromDueDate(taskOccurrenceDomain);
+            taskOccurrenceDomain.TaskTemplate.RowIndex = await GetNextRowIndexForCurrentGroup(taskOccurrenceDomain);
 
             var taskTemplateEntity = taskOccurrenceDomain.TaskTemplate.Adapt<Entity.TaskTemplate>();
             var taskOccurrenceEntity = taskOccurrenceDomain.Adapt<Entity.TaskOccurrence>();
@@ -88,26 +80,11 @@ namespace Core.Services
 
         private async Task HandleDueDateChange(Entity.TaskOccurrence taskOccurrenceEntity, TaskOccurrence updatedTaskOccurrence, DateTime? oldCommittedDate, DateTime? newDueDate)
         {
-            updatedTaskOccurrence.CommittedDate = newDueDate?.Date;
-
-            if (oldCommittedDate is not null)
-            {
-                await UpdateScheduledRowIndexesIfDateProvided(oldCommittedDate, taskOccurrenceEntity.TaskTemplate.RowIndex);
-            }
-            else if (taskOccurrenceEntity.TaskTemplate.RowIndex.HasValue)
-            {
-                await UpdateBacklogRowIndexesForRemainingItems(taskOccurrenceEntity.TaskTemplate);
-            }
-
-            if (newDueDate is not null)
-            {
-                updatedTaskOccurrence.TaskTemplate.RowIndex = await GetNewScheduledRowIndex(updatedTaskOccurrence.CommittedDate);
-            }
-            else
-            {
-                //ako je DueDate postavljen na null, onda postavi novi index na TaskTemplate
-                updatedTaskOccurrence.TaskTemplate.RowIndex = await GetNewBacklogRowIndex(updatedTaskOccurrence.TaskTemplate.Recurring);
-            }
+            SyncCommittedDateFromDueDate(updatedTaskOccurrence);
+            updatedTaskOccurrence.TaskTemplate.RowIndex = await GetNextRowIndexAfterGroupChange(
+                oldCommittedDate,
+                taskOccurrenceEntity.TaskTemplate,
+                updatedTaskOccurrence);
         }
 
         public async Task DeleteTaskTemplateAndOccurrences(int taskTemplateId)
@@ -119,14 +96,7 @@ namespace Core.Services
             //dohvaćam committed TaskOccurrence za TaskTemplate ako postoji
             var taskOccurrenceEntity = taskTemplateEntity.TaskOccurrences.FirstOrDefault(x => x.CommittedDate != null && x.CompletionDate == null);
 
-            if (taskOccurrenceEntity != null)
-            {
-                await UpdateScheduledRowIndexesIfDateProvided(taskOccurrenceEntity.CommittedDate, taskTemplateEntity.RowIndex);
-            }
-            else if (taskTemplateEntity.RowIndex.HasValue)
-            {
-                await UpdateBacklogRowIndexesForRemainingItems(taskTemplateEntity);
-            }
+            await RemoveTaskTemplateFromCurrentGroup(taskTemplateEntity, taskOccurrenceEntity?.CommittedDate);
 
             _taskTemplateRepository.Delete(taskTemplateId);
 
@@ -141,17 +111,9 @@ namespace Core.Services
 
             taskOccurrenceEntity.CompletionDate = DateTime.Now;
 
-            if (taskOccurrenceEntity.CommittedDate is not null)
-            {
-                await UpdateScheduledRowIndexesIfDateProvided(taskOccurrenceEntity.CommittedDate, taskOccurrenceEntity.TaskTemplate.RowIndex);
-            }
-            else if (taskOccurrenceEntity.TaskTemplate.RowIndex.HasValue)
-            {
-                await UpdateBacklogRowIndexesForRemainingItems(taskOccurrenceEntity.TaskTemplate);
-            }
-
             if (!taskOccurrenceEntity.TaskTemplate.Recurring)
             {
+                await RemoveTaskTemplateFromCurrentGroup(taskOccurrenceEntity.TaskTemplate, taskOccurrenceEntity.CommittedDate);
                 taskOccurrenceEntity.TaskTemplate.Completed = true;
                 taskOccurrenceEntity.TaskTemplate.RowIndex = null;
             }
@@ -162,16 +124,14 @@ namespace Core.Services
                 //dobar primjer enkapsulacije biznis logike u domain klasu
                 var newTaskOccurrence = taskOccurrenceDomain.CreateNewRecurringTask();
 
-                if (newTaskOccurrence.CommittedDate != null)
-                {
-                    taskOccurrenceEntity.TaskTemplate.RowIndex = await GetNewScheduledRowIndex(newTaskOccurrence.CommittedDate);
-                }
-                else
-                {
-                    taskOccurrenceEntity.TaskTemplate.RowIndex = await GetNewBacklogRowIndex(taskOccurrenceEntity.TaskTemplate.Recurring);
-                }
+                taskOccurrenceEntity.TaskTemplate.RowIndex = await GetNextRowIndexAfterGroupChange(
+                    taskOccurrenceEntity.CommittedDate,
+                    taskOccurrenceEntity.TaskTemplate,
+                    newTaskOccurrence);
 
                 var newTaskOccurrenceEntity = newTaskOccurrence.Adapt<Entity.TaskOccurrence>();
+                newTaskOccurrenceEntity.TaskTemplate = taskOccurrenceEntity.TaskTemplate;
+                newTaskOccurrenceEntity.TaskTemplateId = taskOccurrenceEntity.TaskTemplateId;
                 newTaskOccurrenceEntity.Description = taskOccurrenceEntity.TaskTemplate.Description;
                 _taskOccurrenceRepository.Add(newTaskOccurrenceEntity);
             }
@@ -189,27 +149,18 @@ namespace Core.Services
 
             if (oldCommittedDate?.Date != commitDay?.Date)
             {
-                if (oldCommittedDate is not null)
-                {
-                    await UpdateScheduledRowIndexesIfDateProvided(oldCommittedDate, taskOccurrenceEntity.TaskTemplate.RowIndex);
-                }
-                else if (taskOccurrenceEntity.TaskTemplate.RowIndex.HasValue)
-                {
-                    await UpdateBacklogRowIndexesForRemainingItems(taskOccurrenceEntity.TaskTemplate);
-                }
-
                 taskOccurrenceDomain.CommittedDate = commitDay?.Date;
 
-                if (commitDay is not null)
-                {
-                    taskOccurrenceDomain.TaskTemplate.RowIndex = await GetNewScheduledRowIndex(commitDay);
-                }
-                else
+                if (commitDay is null)
                 {
                     taskOccurrenceDomain.Description = taskOccurrenceDomain.TaskTemplate.Description;
                     taskOccurrenceDomain.DueDate = null;
-                    taskOccurrenceDomain.TaskTemplate.RowIndex = await GetNewBacklogRowIndex(taskOccurrenceDomain.TaskTemplate.Recurring);
                 }
+
+                taskOccurrenceDomain.TaskTemplate.RowIndex = await GetNextRowIndexAfterGroupChange(
+                    oldCommittedDate,
+                    taskOccurrenceEntity.TaskTemplate,
+                    taskOccurrenceDomain);
             }
 
             taskOccurrenceDomain.Adapt(taskOccurrenceEntity);
@@ -363,22 +314,64 @@ namespace Core.Services
                             q => q.OrderByDescending(x => x.RowIndex)
                         );
 
-            return maxRowIndexTaskTemplateEntity?.RowIndex + 1 ?? 0;
+            return GetNextRowIndexFromMax(maxRowIndexTaskTemplateEntity?.RowIndex);
+        }
+
+        private static void SyncCommittedDateFromDueDate(TaskOccurrence taskOccurrenceDomain)
+        {
+            taskOccurrenceDomain.CommittedDate = taskOccurrenceDomain.DueDate?.Date;
+        }
+
+        private async Task<int> GetNextRowIndexForCurrentGroup(TaskOccurrence taskOccurrenceDomain)
+        {
+            return await GetNextRowIndex(taskOccurrenceDomain.CommittedDate, taskOccurrenceDomain.TaskTemplate.Recurring);
+        }
+
+        private async Task<int> GetNextRowIndex(DateTime? committedDate, bool recurring)
+        {
+            if (committedDate.HasValue)
+            {
+                return await GetNewScheduledRowIndex(committedDate.Value.Date);
+            }
+
+            return await GetNewBacklogRowIndex(recurring);
+        }
+
+        private async Task<int> GetNextRowIndexAfterGroupChange(DateTime? oldCommittedDate, Entity.TaskTemplate currentTaskTemplate, TaskOccurrence targetTaskOccurrence)
+        {
+            await RemoveTaskTemplateFromCurrentGroup(currentTaskTemplate, oldCommittedDate);
+            return await GetNextRowIndexForCurrentGroup(targetTaskOccurrence);
         }
 
         private async Task<int> GetNewScheduledRowIndex(DateTime? compareDate)
         {
-            var maxRowIndexTaskOccurrenceEntity = (await _taskOccurrenceRepository.GetAllAsync(
+            var maxRowIndexTaskOccurrenceEntity = await _taskOccurrenceRepository.GetFirstOrDefaultAsync(
                 x =>
                     x.CompletionDate == null &&
                     x.CommittedDate.HasValue &&
                     compareDate.HasValue &&
                     x.CommittedDate.Value.Date == compareDate.Value.Date,
                 q => q.OrderByDescending(x => x.TaskTemplate.RowIndex),
-                TaskTemplateInclude,
-                take: 1)).FirstOrDefault();
+                TaskTemplateInclude);
 
-            return maxRowIndexTaskOccurrenceEntity?.TaskTemplate?.RowIndex + 1 ?? 0;
+            return GetNextRowIndexFromMax(maxRowIndexTaskOccurrenceEntity?.TaskTemplate?.RowIndex);
+        }
+
+        private static int GetNextRowIndexFromMax(int? maxRowIndex)
+        {
+            return maxRowIndex + 1 ?? 0;
+        }
+
+        private async Task RemoveTaskTemplateFromCurrentGroup(Entity.TaskTemplate currentTaskTemplate, DateTime? oldCommittedDate)
+        {
+            if (oldCommittedDate is not null)
+            {
+                await UpdateScheduledRowIndexesIfDateProvided(oldCommittedDate, currentTaskTemplate.RowIndex);
+            }
+            else if (currentTaskTemplate.RowIndex.HasValue)
+            {
+                await UpdateBacklogRowIndexesForRemainingItems(currentTaskTemplate);
+            }
         }
 
         private async Task UpdateBacklogRowIndexesForRemainingItems(Entity.TaskTemplate taskTemplateEntity)

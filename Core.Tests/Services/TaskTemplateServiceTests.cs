@@ -28,7 +28,8 @@ public class TaskTemplateServiceTests
         taskTemplateRepository
             .Setup(repository => repository.GetFirstOrDefaultAsync(
                 It.IsAny<Expression<Func<Entity.TaskTemplate, bool>>>(),
-                It.IsAny<Func<IQueryable<Entity.TaskTemplate>, IOrderedQueryable<Entity.TaskTemplate>>>() ))
+                It.IsAny<Func<IQueryable<Entity.TaskTemplate>, IOrderedQueryable<Entity.TaskTemplate>>>(),
+                It.IsAny<string>()))
             .ReturnsAsync(new Entity.TaskTemplate { RowIndex = 2 });
 
         taskTemplateRepository
@@ -67,19 +68,15 @@ public class TaskTemplateServiceTests
         var dueDate = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
 
         taskOccurrenceRepository
-            .Setup(repository => repository.GetAllAsync(
+            .Setup(repository => repository.GetFirstOrDefaultAsync(
                 It.IsAny<Expression<Func<Entity.TaskOccurrence, bool>>>(),
                 It.IsAny<Func<IQueryable<Entity.TaskOccurrence>, IOrderedQueryable<Entity.TaskOccurrence>>>(),
-                TaskTemplateInclude,
-                null,
-                1))
-            .ReturnsAsync(new[]
-            {
+                TaskTemplateInclude))
+            .ReturnsAsync(
                 new Entity.TaskOccurrence
                 {
                     TaskTemplate = new Entity.TaskTemplate { RowIndex = 4 }
-                }
-            });
+                });
 
         taskTemplateRepository
             .Setup(repository => repository.Add(It.IsAny<Entity.TaskTemplate>()))
@@ -159,7 +156,8 @@ public class TaskTemplateServiceTests
         taskTemplateRepository
             .Setup(repository => repository.GetFirstOrDefaultAsync(
                 It.IsAny<Expression<Func<Entity.TaskTemplate, bool>>>(),
-                It.IsAny<Func<IQueryable<Entity.TaskTemplate>, IOrderedQueryable<Entity.TaskTemplate>>>() ))
+                It.IsAny<Func<IQueryable<Entity.TaskTemplate>, IOrderedQueryable<Entity.TaskTemplate>>>(),
+                It.IsAny<string>()))
             .ReturnsAsync(new Entity.TaskTemplate { RowIndex = 1 });
 
         var service = new TaskTemplateService(context, taskTemplateRepository.Object, taskOccurrenceRepository.Object);
@@ -252,19 +250,15 @@ public class TaskTemplateServiceTests
             .ReturnsAsync(1);
 
         taskOccurrenceRepository
-            .Setup(repository => repository.GetAllAsync(
+            .Setup(repository => repository.GetFirstOrDefaultAsync(
                 It.IsAny<Expression<Func<Entity.TaskOccurrence, bool>>>(),
                 It.IsAny<Func<IQueryable<Entity.TaskOccurrence>, IOrderedQueryable<Entity.TaskOccurrence>>>(),
-                TaskTemplateInclude,
-                null,
-                1))
-            .ReturnsAsync(new[]
-            {
+                TaskTemplateInclude))
+            .ReturnsAsync(
                 new Entity.TaskOccurrence
                 {
                     TaskTemplate = new Entity.TaskTemplate { RowIndex = 6 }
-                }
-            });
+                });
 
         taskOccurrenceRepository
             .Setup(repository => repository.Add(It.IsAny<Entity.TaskOccurrence>()))
@@ -276,6 +270,7 @@ public class TaskTemplateServiceTests
 
         Assert.NotNull(addedTaskOccurrence);
         Assert.Equal(44, addedTaskOccurrence!.TaskTemplateId);
+        Assert.Same(taskOccurrenceEntity.TaskTemplate, addedTaskOccurrence.TaskTemplate);
         Assert.Equal("Take vitamins", addedTaskOccurrence.Description);
         Assert.NotNull(addedTaskOccurrence.DueDate);
         Assert.NotNull(addedTaskOccurrence.CommittedDate);
