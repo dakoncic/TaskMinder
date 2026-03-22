@@ -2,7 +2,7 @@
 
 TaskMinder is a full-stack task planning application built with ASP.NET Core, EF Core, and Angular. The core design challenge is modeling the difference between recurring task templates and concrete task occurrences while supporting weekly scheduling, completion flows, reorder logic, and validation-heavy API interactions.
 
-I use this project as a portfolio example for layered architecture, domain-driven business rules, backend testing, and typed frontend integration. Companion portfolio pieces cover authentication, CI/CD, Docker, and deployment automation.
+I use this project as a portfolio example for layered architecture, domain-driven business rules, backend testing, and typed frontend integration.
 
 ## What This Project Demonstrates
 
