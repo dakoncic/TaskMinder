@@ -4,6 +4,7 @@ using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using MyFeatures.DTO;
+using System.Net.Mime;
 
 namespace MyFeatures.Controllers
 {
@@ -24,7 +25,7 @@ namespace MyFeatures.Controllers
         /// <returns>An ActionResult containing a list of NotepadDto objects.</returns>
         [HttpGet("GetAllNotepads")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<NotepadDto>))]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError, MediaTypeNames.Application.Json)]
         public async Task<ActionResult<IEnumerable<NotepadDto>>> GetAllNotepads()
         {
             var notepads = await _notepadService.GetAll();
@@ -39,8 +40,8 @@ namespace MyFeatures.Controllers
         /// <returns>An ActionResult representing the result of the operation.</returns>
         [HttpPost("CreateNotepad")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError, MediaTypeNames.Application.Json)]
         public async Task<ActionResult<NotepadDto>> CreateNotepad()
         {
             await _notepadService.Create();
@@ -56,9 +57,9 @@ namespace MyFeatures.Controllers
         /// <returns>An ActionResult representing the result of the operation.</returns>
         [HttpPut("UpdateNotepad/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError, MediaTypeNames.Application.Json)]
         public async Task<ActionResult<NotepadDto>> UpdateNotepad(int id, NotepadDto notepadDto)
         {
             var notepadDomain = notepadDto.Adapt<Notepad>();
@@ -74,8 +75,8 @@ namespace MyFeatures.Controllers
         /// <returns>An ActionResult representing the result of the operation.</returns>
         [HttpDelete("DeleteNotepad/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError, MediaTypeNames.Application.Json)]
         public async Task<IActionResult> DeleteNotepad(int id)
         {
             await _notepadService.Delete(id);
