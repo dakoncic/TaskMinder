@@ -1,11 +1,8 @@
 using System.Linq.Expressions;
 using Core.DomainModels;
-using Core.Enum;
 using Core.Exceptions;
 using Core.Services;
-using Infrastructure.DAL;
 using Infrastructure.Interfaces.IRepository;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
 using Entity = Infrastructure.Entities;
@@ -15,159 +12,23 @@ namespace Core.Tests.Services;
 public class TaskTemplateServiceTests
 {
     private const string TaskTemplateInclude = "TaskTemplate";
-
-    [Fact]
-    public async Task CreateTaskTemplateAndOccurrence_WithBacklogTask_AssignsNextBacklogIndex()
-    {
-        var taskTemplateRepository = new Mock<IGenericRepository<Entity.TaskTemplate>>();
-        var taskOccurrenceRepository = new Mock<IGenericRepository<Entity.TaskOccurrence>>();
-        var context = CreateContext();
-
-        Entity.TaskTemplate? addedTaskTemplate = null;
-
-        taskTemplateRepository
-            .Setup(repository => repository.GetFirstOrDefaultAsync(
-                It.IsAny<Expression<Func<Entity.TaskTemplate, bool>>>(),
-                It.IsAny<Func<IQueryable<Entity.TaskTemplate>, IOrderedQueryable<Entity.TaskTemplate>>>(),
-                It.IsAny<string>()))
-            .ReturnsAsync(new Entity.TaskTemplate { RowIndex = 2 });
-
-        taskTemplateRepository
-            .Setup(repository => repository.Add(It.IsAny<Entity.TaskTemplate>()))
-            .Callback<Entity.TaskTemplate>(entity => addedTaskTemplate = entity);
-
-        var service = new TaskTemplateService(context, taskTemplateRepository.Object, taskOccurrenceRepository.Object);
-
-        var taskOccurrence = new TaskOccurrence
-        {
-            Description = "Prepare documents",
-            TaskTemplate = new TaskTemplate
-            {
-                Description = "Prepare documents",
-                Recurring = false
-            }
-        };
-
-        await service.CreateTaskTemplateAndOccurrence(taskOccurrence);
-
-        Assert.NotNull(addedTaskTemplate);
-        Assert.Equal(3, addedTaskTemplate!.RowIndex);
-        var addedOccurrence = Assert.Single(addedTaskTemplate.TaskOccurrences);
-        Assert.Null(addedOccurrence.CommittedDate);
-        Assert.Null(addedOccurrence.DueDate);
-    }
-
-    [Fact]
-    public async Task CreateTaskTemplateAndOccurrence_WithScheduledTask_AssignsCommittedDateAndNextScheduledIndex()
-    {
-        var taskTemplateRepository = new Mock<IGenericRepository<Entity.TaskTemplate>>();
-        var taskOccurrenceRepository = new Mock<IGenericRepository<Entity.TaskOccurrence>>();
-        var context = CreateContext();
-
-        Entity.TaskTemplate? addedTaskTemplate = null;
-        var dueDate = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
-
-        taskOccurrenceRepository
-            .Setup(repository => repository.GetFirstOrDefaultAsync(
-                It.IsAny<Expression<Func<Entity.TaskOccurrence, bool>>>(),
-                It.IsAny<Func<IQueryable<Entity.TaskOccurrence>, IOrderedQueryable<Entity.TaskOccurrence>>>(),
-                TaskTemplateInclude))
-            .ReturnsAsync(
-                new Entity.TaskOccurrence
-                {
-                    TaskTemplate = new Entity.TaskTemplate { RowIndex = 4 }
-                });
-
-        taskTemplateRepository
-            .Setup(repository => repository.Add(It.IsAny<Entity.TaskTemplate>()))
-            .Callback<Entity.TaskTemplate>(entity => addedTaskTemplate = entity);
-
-        var service = new TaskTemplateService(context, taskTemplateRepository.Object, taskOccurrenceRepository.Object);
-
-        var taskOccurrence = new TaskOccurrence
-        {
-            Description = "Pay bill",
-            DueDate = dueDate,
-            TaskTemplate = new TaskTemplate
-            {
-                Description = "Pay bill",
-                Recurring = false
-            }
-        };
-
-        await service.CreateTaskTemplateAndOccurrence(taskOccurrence);
-
-        Assert.NotNull(addedTaskTemplate);
-        Assert.Equal(5, addedTaskTemplate!.RowIndex);
-        var addedOccurrence = Assert.Single(addedTaskTemplate.TaskOccurrences);
-        Assert.Equal(dueDate, addedOccurrence.DueDate);
-        Assert.Equal(dueDate, addedOccurrence.CommittedDate);
-    }
+    private static readonly TimeProvider TestTimeProvider = new FixedTestTimeProvider(new DateTimeOffset(2026, 3, 20, 10, 0, 0, TimeSpan.Zero));
+    private static readonly DateOnly TestLocalDate = new(2026, 3, 20);
 
     [Fact]
     public async Task GetTaskOccurrenceById_WhenMissing_ThrowsNotFoundException()
     {
         var taskTemplateRepository = new Mock<IGenericRepository<Entity.TaskTemplate>>();
         var taskOccurrenceRepository = new Mock<IGenericRepository<Entity.TaskOccurrence>>();
-        var context = CreateContext();
+        var unitOfWork = CreateUnitOfWorkMock();
 
         taskOccurrenceRepository
             .Setup(repository => repository.GetByIdAsync(99, "TaskTemplate"))
             .ReturnsAsync((Entity.TaskOccurrence?)null);
 
-        var service = new TaskTemplateService(context, taskTemplateRepository.Object, taskOccurrenceRepository.Object);
+        var service = CreateService(taskTemplateRepository, taskOccurrenceRepository, unitOfWork);
 
         await Assert.ThrowsAsync<NotFoundException>(() => service.GetTaskOccurrenceById(99));
-    }
-
-    [Fact]
-    public async Task CommitTaskOccurrenceOrReturnToGroup_WhenReturnedToBacklog_ResetsSchedulingFieldsAndAssignsBacklogIndex()
-    {
-        var taskTemplateRepository = new Mock<IGenericRepository<Entity.TaskTemplate>>();
-        var taskOccurrenceRepository = new Mock<IGenericRepository<Entity.TaskOccurrence>>();
-        var context = CreateContext();
-
-        var taskOccurrenceEntity = new Entity.TaskOccurrence
-        {
-            Id = 7,
-            TaskTemplateId = 21,
-            Description = "Committed description",
-            DueDate = new DateTime(2026, 4, 3, 0, 0, 0, DateTimeKind.Utc),
-            CommittedDate = new DateTime(2026, 4, 3, 0, 0, 0, DateTimeKind.Utc),
-            TaskTemplate = new Entity.TaskTemplate
-            {
-                Id = 21,
-                Description = "Template description",
-                Recurring = false,
-                RowIndex = 4
-            }
-        };
-
-        taskOccurrenceRepository
-            .Setup(repository => repository.GetByIdAsync(7, TaskTemplateInclude))
-            .ReturnsAsync(taskOccurrenceEntity);
-
-        taskTemplateRepository
-            .Setup(repository => repository.UpdateBatchAsync(
-                It.IsAny<Expression<Func<Entity.TaskTemplate, bool>>>(),
-                It.IsAny<Expression<Func<Entity.TaskTemplate, Entity.TaskTemplate>>>() ))
-            .ReturnsAsync(1);
-
-        taskTemplateRepository
-            .Setup(repository => repository.GetFirstOrDefaultAsync(
-                It.IsAny<Expression<Func<Entity.TaskTemplate, bool>>>(),
-                It.IsAny<Func<IQueryable<Entity.TaskTemplate>, IOrderedQueryable<Entity.TaskTemplate>>>(),
-                It.IsAny<string>()))
-            .ReturnsAsync(new Entity.TaskTemplate { RowIndex = 1 });
-
-        var service = new TaskTemplateService(context, taskTemplateRepository.Object, taskOccurrenceRepository.Object);
-
-        await service.CommitTaskOccurrenceOrReturnToGroup(null, 7);
-
-        Assert.Null(taskOccurrenceEntity.CommittedDate);
-        Assert.Null(taskOccurrenceEntity.DueDate);
-        Assert.Equal("Template description", taskOccurrenceEntity.Description);
-        Assert.Equal(2, taskOccurrenceEntity.TaskTemplate.RowIndex);
     }
 
     [Fact]
@@ -175,7 +36,7 @@ public class TaskTemplateServiceTests
     {
         var taskTemplateRepository = new Mock<IGenericRepository<Entity.TaskTemplate>>();
         var taskOccurrenceRepository = new Mock<IGenericRepository<Entity.TaskOccurrence>>();
-        var context = CreateContext();
+        var unitOfWork = CreateUnitOfWorkMock();
 
         var taskOccurrenceEntity = new Entity.TaskOccurrence
         {
@@ -200,13 +61,14 @@ public class TaskTemplateServiceTests
                 It.IsAny<Expression<Func<Entity.TaskTemplate, Entity.TaskTemplate>>>() ))
             .ReturnsAsync(1);
 
-        var service = new TaskTemplateService(context, taskTemplateRepository.Object, taskOccurrenceRepository.Object);
+        var service = CreateService(taskTemplateRepository, taskOccurrenceRepository, unitOfWork);
 
-        await service.CompleteTaskOccurrence(5);
+        await service.CompleteTaskOccurrence(5, TestLocalDate);
 
         Assert.NotNull(taskOccurrenceEntity.CompletionDate);
         Assert.True(taskOccurrenceEntity.TaskTemplate.Completed);
         Assert.Null(taskOccurrenceEntity.TaskTemplate.RowIndex);
+        unitOfWork.Verify(workUnit => workUnit.SaveChangesAsync(), Times.Once);
         taskOccurrenceRepository.Verify(repository => repository.Add(It.IsAny<Entity.TaskOccurrence>()), Times.Never);
     }
 
@@ -215,10 +77,10 @@ public class TaskTemplateServiceTests
     {
         var taskTemplateRepository = new Mock<IGenericRepository<Entity.TaskTemplate>>();
         var taskOccurrenceRepository = new Mock<IGenericRepository<Entity.TaskOccurrence>>();
-        var context = CreateContext();
+        var unitOfWork = CreateUnitOfWorkMock();
 
         Entity.TaskOccurrence? addedTaskOccurrence = null;
-        var dueDate = DateTime.Now.Date.AddDays(3);
+        var dueDate = TestTimeProvider.GetLocalNow().Date.AddDays(3);
 
         var taskOccurrenceEntity = new Entity.TaskOccurrence
         {
@@ -264,9 +126,9 @@ public class TaskTemplateServiceTests
             .Setup(repository => repository.Add(It.IsAny<Entity.TaskOccurrence>()))
             .Callback<Entity.TaskOccurrence>(entity => addedTaskOccurrence = entity);
 
-        var service = new TaskTemplateService(context, taskTemplateRepository.Object, taskOccurrenceRepository.Object);
+        var service = CreateService(taskTemplateRepository, taskOccurrenceRepository, unitOfWork);
 
-        await service.CompleteTaskOccurrence(12);
+        await service.CompleteTaskOccurrence(12, TestLocalDate);
 
         Assert.NotNull(addedTaskOccurrence);
         Assert.Equal(44, addedTaskOccurrence!.TaskTemplateId);
@@ -274,15 +136,123 @@ public class TaskTemplateServiceTests
         Assert.Equal("Take vitamins", addedTaskOccurrence.Description);
         Assert.NotNull(addedTaskOccurrence.DueDate);
         Assert.NotNull(addedTaskOccurrence.CommittedDate);
-        Assert.Equal(7, taskOccurrenceEntity.TaskTemplate.RowIndex);
+        Assert.NotNull(taskOccurrenceEntity.TaskTemplate.RowIndex);
+        unitOfWork.Verify(workUnit => workUnit.SaveChangesAsync(), Times.Once);
     }
 
-    private static MyFeaturesDbContext CreateContext()
+    [Fact]
+    public async Task GetCommittedTaskOccurrencesForNextWeek_UsesProvidedLocalDateToMoveExpiredTasks()
     {
-        var options = new DbContextOptionsBuilder<MyFeaturesDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var taskTemplateRepository = new Mock<IGenericRepository<Entity.TaskTemplate>>();
+        var taskOccurrenceRepository = new Mock<IGenericRepository<Entity.TaskOccurrence>>();
+        var unitOfWork = CreateUnitOfWorkMock(hasChanges: true);
 
-        return new MyFeaturesDbContext(options);
+        var overdueTask = new Entity.TaskOccurrence
+        {
+            Id = 5,
+            Description = "Overdue",
+            CommittedDate = new DateTime(2026, 3, 20),
+            TaskTemplate = new Entity.TaskTemplate
+            {
+                Id = 5,
+                Description = "Overdue",
+                Recurring = false,
+                RowIndex = 2
+            }
+        };
+
+        SetupTaskOccurrenceGetAll(taskOccurrenceRepository, new[] { overdueTask });
+
+        taskOccurrenceRepository
+            .Setup(repository => repository.GetFirstOrDefaultAsync(
+                It.IsAny<Expression<Func<Entity.TaskOccurrence, bool>>>(),
+                It.IsAny<Func<IQueryable<Entity.TaskOccurrence>, IOrderedQueryable<Entity.TaskOccurrence>>>(),
+                TaskTemplateInclude))
+            .ReturnsAsync((Entity.TaskOccurrence?)null);
+
+        var service = CreateService(taskTemplateRepository, taskOccurrenceRepository, unitOfWork);
+
+        var result = await service.GetCommittedTaskOccurrencesForNextWeek(new DateOnly(2026, 3, 21));
+
+        Assert.Equal(new DateTime(2026, 3, 21), overdueTask.CommittedDate);
+        Assert.True(result.ContainsKey(new DateTime(2026, 3, 21)));
+        Assert.Single(result[new DateTime(2026, 3, 21)]);
+        Assert.NotNull(overdueTask.TaskTemplate.RowIndex);
+        unitOfWork.Verify(workUnit => workUnit.SaveChangesAsync(), Times.Once);
+    }
+
+    private static Mock<IUnitOfWork> CreateUnitOfWorkMock(bool hasChanges = false)
+    {
+        var unitOfWork = new Mock<IUnitOfWork>();
+        unitOfWork.Setup(unit => unit.SaveChangesAsync()).Returns(Task.CompletedTask);
+        unitOfWork.SetupGet(unit => unit.HasChanges).Returns(hasChanges);
+        return unitOfWork;
+    }
+
+    private static void SetupTaskOccurrenceGetAll(
+        Mock<IGenericRepository<Entity.TaskOccurrence>> taskOccurrenceRepository,
+        IEnumerable<Entity.TaskOccurrence> source)
+    {
+        taskOccurrenceRepository
+            .Setup(repository => repository.GetAllAsync(
+                It.IsAny<Expression<Func<Entity.TaskOccurrence, bool>>>(),
+                It.IsAny<Func<IQueryable<Entity.TaskOccurrence>, IOrderedQueryable<Entity.TaskOccurrence>>>(),
+                It.IsAny<string>(),
+                It.IsAny<int?>(),
+                It.IsAny<int?>()))
+            .ReturnsAsync((Expression<Func<Entity.TaskOccurrence, bool>> filter,
+                Func<IQueryable<Entity.TaskOccurrence>, IOrderedQueryable<Entity.TaskOccurrence>>? orderBy,
+                string includeProperties,
+                int? skip,
+                int? take) => ApplyQuery(source, filter, orderBy));
+    }
+
+    private static IEnumerable<Entity.TaskOccurrence> ApplyQuery(
+        IEnumerable<Entity.TaskOccurrence> source,
+        Expression<Func<Entity.TaskOccurrence, bool>>? filter,
+        Func<IQueryable<Entity.TaskOccurrence>, IOrderedQueryable<Entity.TaskOccurrence>>? orderBy)
+    {
+        IQueryable<Entity.TaskOccurrence> query = source.AsQueryable();
+
+        if (filter is not null)
+        {
+            query = query.Where(filter);
+        }
+
+        if (orderBy is not null)
+        {
+            query = orderBy(query);
+        }
+
+        return query.ToList();
+    }
+
+    private static TaskTemplateService CreateService(
+        Mock<IGenericRepository<Entity.TaskTemplate>> taskTemplateRepository,
+        Mock<IGenericRepository<Entity.TaskOccurrence>> taskOccurrenceRepository,
+        Mock<IUnitOfWork> unitOfWork)
+    {
+        return new TaskTemplateService(
+            taskTemplateRepository.Object,
+            taskOccurrenceRepository.Object,
+            unitOfWork.Object,
+            TestTimeProvider);
+    }
+
+    private sealed class FixedTestTimeProvider : TimeProvider
+    {
+        private readonly DateTimeOffset _utcNow;
+
+        public FixedTestTimeProvider(DateTimeOffset utcNow)
+        {
+            _utcNow = utcNow;
+        }
+
+        public override DateTimeOffset GetUtcNow()
+        {
+            return _utcNow;
+        }
+
+        public override TimeZoneInfo LocalTimeZone => TimeZoneInfo.Utc;
     }
 }

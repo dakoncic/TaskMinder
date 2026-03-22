@@ -2,6 +2,7 @@
 using Core.Interfaces;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using MyFeatures.DTO;
 
 namespace MyFeatures.Controllers
@@ -84,9 +85,9 @@ namespace MyFeatures.Controllers
         /// <param name="taskOccurrenceId">The ID of the task occurrence to mark as complete.</param>
         /// <returns>An ActionResult representing the result of the operation.</returns>
         [HttpPost("CompleteTaskOccurrence/{taskOccurrenceId}")]
-        public async Task<IActionResult> CompleteTaskOccurrence(int taskOccurrenceId)
+        public async Task<IActionResult> CompleteTaskOccurrence(int taskOccurrenceId, [FromQuery, BindRequired] DateOnly localDate)
         {
-            await _taskTemplateService.CompleteTaskOccurrence(taskOccurrenceId);
+            await _taskTemplateService.CompleteTaskOccurrence(taskOccurrenceId, localDate);
 
             return Ok();
         }
@@ -143,9 +144,9 @@ namespace MyFeatures.Controllers
         /// </summary>
         /// <returns>An ActionResult containing a list of one-time task occurrence data transfer objects.</returns>
         [HttpGet("GetOneTimeTaskOccurrences")]
-        public async Task<ActionResult<IEnumerable<TaskOccurrenceDto>>> GetOneTimeTaskOccurrences()
+        public async Task<ActionResult<IEnumerable<TaskOccurrenceDto>>> GetOneTimeTaskOccurrences([FromQuery, BindRequired] DateOnly localDate)
         {
-            var taskOccurrences = await _taskTemplateService.GetActiveTaskOccurrences(false);
+            var taskOccurrences = await _taskTemplateService.GetActiveTaskOccurrences(false, localDate);
             var taskOccurrenceDtos = taskOccurrences.Adapt<List<TaskOccurrenceDto>>();
 
             return Ok(taskOccurrenceDtos);
@@ -156,9 +157,9 @@ namespace MyFeatures.Controllers
         /// </summary>
         /// <returns>An ActionResult containing a list of recurring task occurrence data transfer objects.</returns>
         [HttpGet("GetRecurringTaskOccurrences")]
-        public async Task<ActionResult<IEnumerable<TaskOccurrenceDto>>> GetRecurringTaskOccurrences()
+        public async Task<ActionResult<IEnumerable<TaskOccurrenceDto>>> GetRecurringTaskOccurrences([FromQuery, BindRequired] DateOnly localDate)
         {
-            var taskOccurrences = await _taskTemplateService.GetActiveTaskOccurrences(true);
+            var taskOccurrences = await _taskTemplateService.GetActiveTaskOccurrences(true, localDate);
             var taskOccurrenceDtos = taskOccurrences.Adapt<List<TaskOccurrenceDto>>();
 
             return Ok(taskOccurrenceDtos);
@@ -169,9 +170,9 @@ namespace MyFeatures.Controllers
         /// </summary>
         /// <returns>A list of WeekDayDto objects containing the committed task occurrences grouped by day.</returns>
         [HttpGet("GetCommittedTaskOccurrencesForNextWeek")]
-        public async Task<IEnumerable<WeekDayDto>> GetCommittedTaskOccurrencesForNextWeek()
+        public async Task<IEnumerable<WeekDayDto>> GetCommittedTaskOccurrencesForNextWeek([FromQuery, BindRequired] DateOnly localDate)
         {
-            var groupedTaskOccurrences = await _taskTemplateService.GetCommittedTaskOccurrencesForNextWeek();
+            var groupedTaskOccurrences = await _taskTemplateService.GetCommittedTaskOccurrencesForNextWeek(localDate);
             var weekDayDtos = groupedTaskOccurrences
                 .Select(group => new WeekDayDto
                 {

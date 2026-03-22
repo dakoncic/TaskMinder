@@ -15,19 +15,22 @@ namespace Core.Services
     {
         private const string TaskTemplateInclude = "TaskTemplate";
 
-        private readonly MyFeaturesDbContext _context;
         private readonly IGenericRepository<Entity.TaskTemplate> _taskTemplateRepository;
         private readonly IGenericRepository<Entity.TaskOccurrence> _taskOccurrenceRepository;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly TimeProvider _timeProvider;
 
         public TaskTemplateService(
-            MyFeaturesDbContext context,
             IGenericRepository<Entity.TaskTemplate> taskTemplateRepository,
-            IGenericRepository<Entity.TaskOccurrence> taskOccurrenceRepository
+            IGenericRepository<Entity.TaskOccurrence> taskOccurrenceRepository,
+            IUnitOfWork unitOfWork,
+            TimeProvider timeProvider
             )
         {
-            _context = context;
             _taskTemplateRepository = taskTemplateRepository;
             _taskOccurrenceRepository = taskOccurrenceRepository;
+            _unitOfWork = unitOfWork;
+            _timeProvider = timeProvider;
         }
 
         public async Task CreateTaskTemplateAndOccurrence(TaskOccurrence taskOccurrenceDomain)
@@ -42,7 +45,7 @@ namespace Core.Services
 
             _taskTemplateRepository.Add(taskTemplateEntity);
 
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<TaskOccurrence> GetTaskOccurrenceById(int taskOccurrenceId)
@@ -75,7 +78,7 @@ namespace Core.Services
             }
 
             updatedTaskOccurrence.Adapt(taskOccurrenceEntity);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
         private async Task HandleDueDateChange(Entity.TaskOccurrence taskOccurrenceEntity, TaskOccurrence updatedTaskOccurrence, DateTime? oldCommittedDate, DateTime? newDueDate)
@@ -100,16 +103,16 @@ namespace Core.Services
 
             _taskTemplateRepository.Delete(taskTemplateId);
 
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task CompleteTaskOccurrence(int taskOccurrenceId)
+        public async Task CompleteTaskOccurrence(int taskOccurrenceId, DateOnly localDate)
         {
             var taskOccurrenceEntity = await _taskOccurrenceRepository.GetByIdAsync(taskOccurrenceId, TaskTemplateInclude);
 
             CheckIfNull(taskOccurrenceEntity, $"TaskOccurrence with ID {taskOccurrenceId} not found.");
 
-            taskOccurrenceEntity.CompletionDate = DateTime.Now;
+            taskOccurrenceEntity.CompletionDate = _timeProvider.GetUtcNow().UtcDateTime;
 
             if (!taskOccurrenceEntity.TaskTemplate.Recurring)
             {
@@ -121,8 +124,10 @@ namespace Core.Services
             {
                 var taskOccurrenceDomain = taskOccurrenceEntity.Adapt<TaskOccurrence>();
 
+                var currentLocalDateTime = localDate.ToDateTime(TimeOnly.MinValue);
+
                 //dobar primjer enkapsulacije biznis logike u domain klasu
-                var newTaskOccurrence = taskOccurrenceDomain.CreateNewRecurringTask();
+                var newTaskOccurrence = taskOccurrenceDomain.CreateNewRecurringTask(currentLocalDateTime);
 
                 taskOccurrenceEntity.TaskTemplate.RowIndex = await GetNextRowIndexAfterGroupChange(
                     taskOccurrenceEntity.CommittedDate,
@@ -136,8 +141,9 @@ namespace Core.Services
                 _taskOccurrenceRepository.Add(newTaskOccurrenceEntity);
             }
 
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
+
         public async Task CommitTaskOccurrenceOrReturnToGroup(DateTime? commitDay, int taskOccurrenceId)
         {
             var taskOccurrenceEntity = await _taskOccurrenceRepository.GetByIdAsync(taskOccurrenceId, TaskTemplateInclude);
@@ -165,7 +171,7 @@ namespace Core.Services
 
             taskOccurrenceDomain.Adapt(taskOccurrenceEntity);
 
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task ReorderTaskTemplateInsideGroup(int taskTemplateId, int newIndex, bool recurring)
@@ -189,7 +195,7 @@ namespace Core.Services
 
             taskTemplateEntity.RowIndex = newIndex;
 
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task ReorderTaskOccurrenceInsideGroup(int taskOccurrenceId, DateTime commitDate, int newIndex)
@@ -216,15 +222,17 @@ namespace Core.Services
 
             taskOccurrenceEntity.TaskTemplate.RowIndex = newIndex;
 
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<List<TaskOccurrence>> GetActiveTaskOccurrences(bool recurring)
+        public async Task<List<TaskOccurrence>> GetActiveTaskOccurrences(bool recurring, DateOnly localDate)
         {
+            var businessDate = ResolveBusinessDate(localDate);
+
             Expression<Func<Entity.TaskOccurrence, bool>> filter = i =>
                 i.TaskTemplate.Recurring.Equals(recurring) &&
                 i.CompletionDate == null &&
-                (i.CommittedDate == null || i.CommittedDate.Value.Date >= DateTime.Now.Date.AddDays(GlobalConstants.DaysRange));
+                (i.CommittedDate == null || i.CommittedDate.Value.Date >= businessDate.AddDays(GlobalConstants.DaysRange));
 
             var taskOccurrencesEntity = await _taskOccurrenceRepository.GetAllAsync(
                 filter: filter,
@@ -235,59 +243,60 @@ namespace Core.Services
             return taskOccurrencesEntity.Adapt<List<TaskOccurrence>>();
         }
 
-        public async Task<Dictionary<DateTime, List<Entity.TaskOccurrence>>> GetCommittedTaskOccurrencesForNextWeek()
+        public async Task<Dictionary<DateTime, List<TaskOccurrence>>> GetCommittedTaskOccurrencesForNextWeek(DateOnly localDate)
         {
-            await UpdateExpiredTaskOccurrences();
+            var businessDate = ResolveBusinessDate(localDate);
 
-            var taskOccurrencesEntity = await GetTaskOccurrencesGroupedByCommitDateForNextWeek();
+            await UpdateExpiredTaskOccurrences(businessDate);
 
-            return taskOccurrencesEntity;
+            var taskOccurrencesEntity = await GetTaskOccurrencesGroupedByCommitDateForNextWeek(businessDate);
+
+            return taskOccurrencesEntity.ToDictionary(
+                group => group.Key,
+                group => group.Value.Adapt<List<TaskOccurrence>>());
         }
 
-        private async Task UpdateExpiredTaskOccurrences()
+        private async Task UpdateExpiredTaskOccurrences(DateTime businessDate)
         {
-            var today = DateTime.Now.Date;
-
             Expression<Func<Entity.TaskOccurrence, bool>> filter = x =>
                 x.CompletionDate == null &&
                 x.CommittedDate.HasValue &&
-                x.CommittedDate.Value.Date < today;
+            x.CommittedDate.Value.Date < businessDate;
 
             var expiredTaskOccurrencesEntity = await _taskOccurrenceRepository.GetAllAsync(filter, includeProperties: TaskTemplateInclude);
 
             if (expiredTaskOccurrencesEntity.Any())
             {
-                int newRowIndex = await GetNewScheduledRowIndex(today);
+                int newRowIndex = await GetNewScheduledRowIndex(businessDate);
 
                 foreach (var task in expiredTaskOccurrencesEntity)
                 {
-                    task.CommittedDate = today;
+                    task.CommittedDate = businessDate;
                     task.TaskTemplate.RowIndex = newRowIndex++;
                 }
 
-                if (_context.ChangeTracker.HasChanges())
+                if (_unitOfWork.HasChanges)
                 {
-                    await _context.SaveChangesAsync();
+                    await _unitOfWork.SaveChangesAsync();
                 }
             }
         }
 
-        private async Task<Dictionary<DateTime, List<Entity.TaskOccurrence>>> GetTaskOccurrencesGroupedByCommitDateForNextWeek()
+        private async Task<Dictionary<DateTime, List<Entity.TaskOccurrence>>> GetTaskOccurrencesGroupedByCommitDateForNextWeek(DateTime businessDate)
         {
-            var today = DateTime.Now.Date;
-            var endOfDayRange = today.AddDays(GlobalConstants.DaysRange);
+            var endOfDayRange = businessDate.AddDays(GlobalConstants.DaysRange);
 
             Expression<Func<Entity.TaskOccurrence, bool>> filter = x =>
                 x.CompletionDate == null &&
                 x.CommittedDate.HasValue &&
-                x.CommittedDate.Value.Date >= today &&
+                x.CommittedDate.Value.Date >= businessDate &&
                 x.CommittedDate.Value.Date < endOfDayRange;
 
             var taskOccurrencesForNextWeekEntity = await _taskOccurrenceRepository.GetAllAsync(filter, includeProperties: TaskTemplateInclude);
 
             var groupedTaskOccurrencesEntity = new Dictionary<DateTime, List<Entity.TaskOccurrence>>();
 
-            for (DateTime day = today; day < endOfDayRange; day = day.AddDays(1))
+            for (DateTime day = businessDate; day < endOfDayRange; day = day.AddDays(1))
             {
                 // commitani taskovi za specifičan dan
                 var tasksForDay = taskOccurrencesForNextWeekEntity
@@ -360,6 +369,11 @@ namespace Core.Services
         private static int GetNextRowIndexFromMax(int? maxRowIndex)
         {
             return maxRowIndex + 1 ?? 0;
+        }
+
+        private static DateTime ResolveBusinessDate(DateOnly localDate)
+        {
+            return localDate.ToDateTime(TimeOnly.MinValue);
         }
 
         private async Task RemoveTaskTemplateFromCurrentGroup(Entity.TaskTemplate currentTaskTemplate, DateTime? oldCommittedDate)

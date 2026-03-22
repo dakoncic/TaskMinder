@@ -1,5 +1,4 @@
 ﻿using Core.DomainModels;
-using Entity = Infrastructure.Entities;
 
 namespace Core.Interfaces
 {
@@ -9,11 +8,11 @@ namespace Core.Interfaces
         Task<TaskOccurrence> GetTaskOccurrenceById(int taskOccurrenceId);
         Task UpdateTaskTemplateAndOccurrence(int taskOccurrenceId, TaskOccurrence taskOccurrenceDomain);
         Task DeleteTaskTemplateAndOccurrences(int taskTemplateId);
-        Task CompleteTaskOccurrence(int taskOccurrenceId);
+        Task CompleteTaskOccurrence(int taskOccurrenceId, DateOnly localDate);
         Task CommitTaskOccurrenceOrReturnToGroup(DateTime? commitDay, int taskOccurrenceId);
         Task ReorderTaskTemplateInsideGroup(int taskTemplateId, int newIndex, bool recurring);
         Task ReorderTaskOccurrenceInsideGroup(int taskOccurrenceId, DateTime commitDate, int newIndex);
-        Task<List<TaskOccurrence>> GetActiveTaskOccurrences(bool recurring);
-        Task<Dictionary<DateTime, List<Entity.TaskOccurrence>>> GetCommittedTaskOccurrencesForNextWeek();
+        Task<List<TaskOccurrence>> GetActiveTaskOccurrences(bool recurring, DateOnly localDate);
+        Task<Dictionary<DateTime, List<TaskOccurrence>>> GetCommittedTaskOccurrencesForNextWeek(DateOnly localDate);
     }
 }

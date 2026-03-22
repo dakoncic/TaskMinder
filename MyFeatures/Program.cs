@@ -34,6 +34,8 @@ builder.Services.AddDbContext<MyFeaturesDbContext>(options =>
 });
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddSingleton(TimeProvider.System);
 
 builder.Services.AddScoped<ITaskTemplateService, TaskTemplateService>();
 builder.Services.AddScoped<INotepadService, NotepadService>();

@@ -12,7 +12,7 @@ namespace Core.DomainModels
         public DateTime? CompletionDate { get; set; }
         public required TaskTemplate TaskTemplate { get; set; }
 
-        public TaskOccurrence CreateNewRecurringTask()
+        public TaskOccurrence CreateNewRecurringTask(DateTime currentLocalDateTime)
         {
             var newTaskOccurrence = new TaskOccurrence
             {
@@ -23,7 +23,7 @@ namespace Core.DomainModels
 
             if (DueDate is not null && TaskTemplate.IntervalValue is not null)
             {
-                var daysBetween = CalculateDaysBetween(TaskTemplate);
+                var daysBetween = CalculateDaysBetween(TaskTemplate, currentLocalDateTime);
 
                 //ako je renewOnDueDate true, neće bit null jer postoji days between
                 //npr. vit D svake ned.
@@ -33,7 +33,7 @@ namespace Core.DomainModels
                     newTaskOccurrence.DueDate = DueDate.Value.AddDays(daysBetween);
 
                     // i onda još dodaj dok ne bude dovoljno da taj datum bude veći od današnjeg dana (ako već nije)
-                    while (newTaskOccurrence.DueDate.Value.Date <= DateTime.Now.Date)
+                    while (newTaskOccurrence.DueDate.Value.Date <= currentLocalDateTime.Date)
                     {
                         newTaskOccurrence.DueDate = newTaskOccurrence.DueDate.Value.AddDays(daysBetween);
                     }
@@ -41,7 +41,7 @@ namespace Core.DomainModels
                 //inače se obnavlja na completion date npr. registracija auta
                 else
                 {
-                    newTaskOccurrence.DueDate = DateTime.Now.AddDays(daysBetween);
+                    newTaskOccurrence.DueDate = currentLocalDateTime.AddDays(daysBetween);
                 }
 
                 //odma committamo
@@ -51,11 +51,11 @@ namespace Core.DomainModels
             return newTaskOccurrence;
         }
 
-        private static int CalculateDaysBetween(TaskTemplate taskTemplate)
+        private static int CalculateDaysBetween(TaskTemplate taskTemplate, DateTime currentLocalDateTime)
         {
             if (taskTemplate.IntervalType!.Value == IntervalType.Months)
             {
-                return CalculateDaysBetweenForMonths(taskTemplate.IntervalValue!.Value);
+                return CalculateDaysBetweenForMonths(taskTemplate.IntervalValue!.Value, currentLocalDateTime);
             }
             else
             {
@@ -63,9 +63,9 @@ namespace Core.DomainModels
             }
         }
 
-        private static int CalculateDaysBetweenForMonths(int months)
+        private static int CalculateDaysBetweenForMonths(int months, DateTime currentLocalDateTime)
         {
-            var startDate = DateTime.Now;
+            var startDate = currentLocalDateTime;
             var endDate = startDate.AddMonths(months);
             return (endDate - startDate).Days;
         }

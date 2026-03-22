@@ -11,12 +11,18 @@
  */
 /* tslint:disable:no-unused-variable member-ordering */
 
-import { Inject, Injectable, Optional }                      from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams,
-         HttpResponse, HttpEvent, HttpParameterCodec, HttpContext 
-        }       from '@angular/common/http';
-import { CustomHttpParameterCodec }                          from '../encoder';
-import { Observable }                                        from 'rxjs';
+import {
+    HttpClient,
+    HttpContext,
+    HttpEvent,
+    HttpHeaders,
+    HttpParameterCodec,
+    HttpParams,
+    HttpResponse
+} from '@angular/common/http';
+import { Inject, Injectable, Optional } from '@angular/core';
+import { Observable } from 'rxjs';
+import { CustomHttpParameterCodec } from '../encoder';
 
 // @ts-ignore
 import { CommitTaskOccurrenceDto } from '../model/commitTaskOccurrenceDto';
@@ -30,13 +36,13 @@ import { UpdateTaskTemplateIndexDto } from '../model/updateTaskTemplateIndexDto'
 import { WeekDayDto } from '../model/weekDayDto';
 
 // @ts-ignore
-import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
-import { Configuration }                                     from '../configuration';
+import { Configuration } from '../configuration';
+import { BASE_PATH } from '../variables';
 
 
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class TaskTemplateService {
 
@@ -45,7 +51,7 @@ export class TaskTemplateService {
     public configuration = new Configuration();
     public encoder: HttpParameterCodec;
 
-    constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string|string[], @Optional() configuration: Configuration) {
+    constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string | string[], @Optional() configuration: Configuration) {
         if (configuration) {
             this.configuration = configuration;
         }
@@ -80,15 +86,15 @@ export class TaskTemplateService {
 
         if (typeof value === "object") {
             if (Array.isArray(value)) {
-                (value as any[]).forEach( elem => httpParams = this.addToHttpParamsRecursive(httpParams, elem, key));
+                (value as any[]).forEach(elem => httpParams = this.addToHttpParamsRecursive(httpParams, elem, key));
             } else if (value instanceof Date) {
                 if (key != null) {
                     httpParams = httpParams.append(key, (value as Date).toISOString().substring(0, 10));
                 } else {
-                   throw Error("key may not be null if value is Date");
+                    throw Error("key may not be null if value is Date");
                 }
             } else {
-                Object.keys(value).forEach( k => httpParams = this.addToHttpParamsRecursive(
+                Object.keys(value).forEach(k => httpParams = this.addToHttpParamsRecursive(
                     httpParams, value[k], key != null ? `${key}.${k}` : k));
             }
         } else if (key != null) {
@@ -104,10 +110,10 @@ export class TaskTemplateService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public commitTaskOccurrence(commitTaskOccurrenceDto?: CommitTaskOccurrenceDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public commitTaskOccurrence(commitTaskOccurrenceDto?: CommitTaskOccurrenceDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public commitTaskOccurrence(commitTaskOccurrenceDto?: CommitTaskOccurrenceDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public commitTaskOccurrence(commitTaskOccurrenceDto?: CommitTaskOccurrenceDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public commitTaskOccurrence(commitTaskOccurrenceDto?: CommitTaskOccurrenceDto, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<any>;
+    public commitTaskOccurrence(commitTaskOccurrenceDto?: CommitTaskOccurrenceDto, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<HttpResponse<any>>;
+    public commitTaskOccurrence(commitTaskOccurrenceDto?: CommitTaskOccurrenceDto, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<HttpEvent<any>>;
+    public commitTaskOccurrence(commitTaskOccurrenceDto?: CommitTaskOccurrenceDto, observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -172,16 +178,24 @@ export class TaskTemplateService {
 
     /**
      * @param taskOccurrenceId 
+     * @param localDate 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public completeTaskOccurrence(taskOccurrenceId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public completeTaskOccurrence(taskOccurrenceId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public completeTaskOccurrence(taskOccurrenceId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public completeTaskOccurrence(taskOccurrenceId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public completeTaskOccurrence(taskOccurrenceId: number, localDate: string, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<any>;
+    public completeTaskOccurrence(taskOccurrenceId: number, localDate: string, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<HttpResponse<any>>;
+    public completeTaskOccurrence(taskOccurrenceId: number, localDate: string, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<HttpEvent<any>>;
+    public completeTaskOccurrence(taskOccurrenceId: number, localDate: string, observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<any> {
         if (taskOccurrenceId === null || taskOccurrenceId === undefined) {
             throw new Error('Required parameter taskOccurrenceId was null or undefined when calling completeTaskOccurrence.');
         }
+        if (localDate === null || localDate === undefined) {
+            throw new Error('Required parameter localDate was null or undefined when calling completeTaskOccurrence.');
+        }
+
+        let localVarQueryParameters = new HttpParams({ encoder: this.encoder });
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+            <any>localDate, 'localDate');
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -218,10 +232,11 @@ export class TaskTemplateService {
             }
         }
 
-        let localVarPath = `/api/TaskTemplate/CompleteTaskOccurrence/${this.configuration.encodeParam({name: "taskOccurrenceId", value: taskOccurrenceId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int32"})}`;
+        let localVarPath = `/api/TaskTemplate/CompleteTaskOccurrence/${this.configuration.encodeParam({ name: "taskOccurrenceId", value: taskOccurrenceId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int32" })}`;
         return this.httpClient.request<any>('post', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters,
                 responseType: <any>responseType_,
                 withCredentials: this.configuration.withCredentials,
                 headers: localVarHeaders,
@@ -237,10 +252,10 @@ export class TaskTemplateService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public createTaskTemplateAndOccurrence(taskOccurrenceDto?: TaskOccurrenceDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public createTaskTemplateAndOccurrence(taskOccurrenceDto?: TaskOccurrenceDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public createTaskTemplateAndOccurrence(taskOccurrenceDto?: TaskOccurrenceDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public createTaskTemplateAndOccurrence(taskOccurrenceDto?: TaskOccurrenceDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public createTaskTemplateAndOccurrence(taskOccurrenceDto?: TaskOccurrenceDto, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<any>;
+    public createTaskTemplateAndOccurrence(taskOccurrenceDto?: TaskOccurrenceDto, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<HttpResponse<any>>;
+    public createTaskTemplateAndOccurrence(taskOccurrenceDto?: TaskOccurrenceDto, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<HttpEvent<any>>;
+    public createTaskTemplateAndOccurrence(taskOccurrenceDto?: TaskOccurrenceDto, observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -308,10 +323,10 @@ export class TaskTemplateService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public deleteTaskTemplateAndOccurrences(id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public deleteTaskTemplateAndOccurrences(id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public deleteTaskTemplateAndOccurrences(id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public deleteTaskTemplateAndOccurrences(id: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteTaskTemplateAndOccurrences(id: number, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<any>;
+    public deleteTaskTemplateAndOccurrences(id: number, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<HttpResponse<any>>;
+    public deleteTaskTemplateAndOccurrences(id: number, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<HttpEvent<any>>;
+    public deleteTaskTemplateAndOccurrences(id: number, observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling deleteTaskTemplateAndOccurrences.');
         }
@@ -351,7 +366,7 @@ export class TaskTemplateService {
             }
         }
 
-        let localVarPath = `/api/TaskTemplate/DeleteTaskTemplateAndOccurrences/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int32"})}`;
+        let localVarPath = `/api/TaskTemplate/DeleteTaskTemplateAndOccurrences/${this.configuration.encodeParam({ name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int32" })}`;
         return this.httpClient.request<any>('delete', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
@@ -366,13 +381,22 @@ export class TaskTemplateService {
     }
 
     /**
+     * @param localDate 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getCommittedTaskOccurrencesForNextWeek(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<WeekDayDto>>;
-    public getCommittedTaskOccurrencesForNextWeek(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<WeekDayDto>>>;
-    public getCommittedTaskOccurrencesForNextWeek(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<WeekDayDto>>>;
-    public getCommittedTaskOccurrencesForNextWeek(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getCommittedTaskOccurrencesForNextWeek(localDate: string, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean }): Observable<Array<WeekDayDto>>;
+    public getCommittedTaskOccurrencesForNextWeek(localDate: string, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean }): Observable<HttpResponse<Array<WeekDayDto>>>;
+    public getCommittedTaskOccurrencesForNextWeek(localDate: string, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean }): Observable<HttpEvent<Array<WeekDayDto>>>;
+    public getCommittedTaskOccurrencesForNextWeek(localDate: string, observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean }): Observable<any> {
+
+        if (localDate === null || localDate === undefined) {
+            throw new Error('Required parameter localDate was null or undefined when calling getCommittedTaskOccurrencesForNextWeek.');
+        }
+
+        let localVarQueryParameters = new HttpParams({ encoder: this.encoder });
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+            <any>localDate, 'localDate');
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -416,6 +440,7 @@ export class TaskTemplateService {
         return this.httpClient.request<Array<WeekDayDto>>('get', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters,
                 responseType: <any>responseType_,
                 withCredentials: this.configuration.withCredentials,
                 headers: localVarHeaders,
@@ -427,13 +452,22 @@ export class TaskTemplateService {
     }
 
     /**
+     * @param localDate 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getOneTimeTaskOccurrences(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<TaskOccurrenceDto>>;
-    public getOneTimeTaskOccurrences(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<TaskOccurrenceDto>>>;
-    public getOneTimeTaskOccurrences(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<TaskOccurrenceDto>>>;
-    public getOneTimeTaskOccurrences(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getOneTimeTaskOccurrences(localDate: string, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean }): Observable<Array<TaskOccurrenceDto>>;
+    public getOneTimeTaskOccurrences(localDate: string, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean }): Observable<HttpResponse<Array<TaskOccurrenceDto>>>;
+    public getOneTimeTaskOccurrences(localDate: string, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean }): Observable<HttpEvent<Array<TaskOccurrenceDto>>>;
+    public getOneTimeTaskOccurrences(localDate: string, observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean }): Observable<any> {
+
+        if (localDate === null || localDate === undefined) {
+            throw new Error('Required parameter localDate was null or undefined when calling getOneTimeTaskOccurrences.');
+        }
+
+        let localVarQueryParameters = new HttpParams({ encoder: this.encoder });
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+            <any>localDate, 'localDate');
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -477,6 +511,7 @@ export class TaskTemplateService {
         return this.httpClient.request<Array<TaskOccurrenceDto>>('get', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters,
                 responseType: <any>responseType_,
                 withCredentials: this.configuration.withCredentials,
                 headers: localVarHeaders,
@@ -488,13 +523,22 @@ export class TaskTemplateService {
     }
 
     /**
+     * @param localDate 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getRecurringTaskOccurrences(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<TaskOccurrenceDto>>;
-    public getRecurringTaskOccurrences(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<TaskOccurrenceDto>>>;
-    public getRecurringTaskOccurrences(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<TaskOccurrenceDto>>>;
-    public getRecurringTaskOccurrences(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getRecurringTaskOccurrences(localDate: string, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean }): Observable<Array<TaskOccurrenceDto>>;
+    public getRecurringTaskOccurrences(localDate: string, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean }): Observable<HttpResponse<Array<TaskOccurrenceDto>>>;
+    public getRecurringTaskOccurrences(localDate: string, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean }): Observable<HttpEvent<Array<TaskOccurrenceDto>>>;
+    public getRecurringTaskOccurrences(localDate: string, observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean }): Observable<any> {
+
+        if (localDate === null || localDate === undefined) {
+            throw new Error('Required parameter localDate was null or undefined when calling getRecurringTaskOccurrences.');
+        }
+
+        let localVarQueryParameters = new HttpParams({ encoder: this.encoder });
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+            <any>localDate, 'localDate');
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -538,6 +582,7 @@ export class TaskTemplateService {
         return this.httpClient.request<Array<TaskOccurrenceDto>>('get', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters,
                 responseType: <any>responseType_,
                 withCredentials: this.configuration.withCredentials,
                 headers: localVarHeaders,
@@ -553,10 +598,10 @@ export class TaskTemplateService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getTaskOccurrenceById(id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<TaskOccurrenceDto>;
-    public getTaskOccurrenceById(id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TaskOccurrenceDto>>;
-    public getTaskOccurrenceById(id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TaskOccurrenceDto>>;
-    public getTaskOccurrenceById(id: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getTaskOccurrenceById(id: number, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean }): Observable<TaskOccurrenceDto>;
+    public getTaskOccurrenceById(id: number, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean }): Observable<HttpResponse<TaskOccurrenceDto>>;
+    public getTaskOccurrenceById(id: number, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean }): Observable<HttpEvent<TaskOccurrenceDto>>;
+    public getTaskOccurrenceById(id: number, observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean }): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling getTaskOccurrenceById.');
         }
@@ -599,7 +644,7 @@ export class TaskTemplateService {
             }
         }
 
-        let localVarPath = `/api/TaskTemplate/GetTaskOccurrenceById/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int32"})}`;
+        let localVarPath = `/api/TaskTemplate/GetTaskOccurrenceById/${this.configuration.encodeParam({ name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int32" })}`;
         return this.httpClient.request<TaskOccurrenceDto>('get', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
@@ -618,10 +663,10 @@ export class TaskTemplateService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public reorderTaskOccurrenceInsideGroup(updateTaskOccurrenceIndexDto?: UpdateTaskOccurrenceIndexDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public reorderTaskOccurrenceInsideGroup(updateTaskOccurrenceIndexDto?: UpdateTaskOccurrenceIndexDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public reorderTaskOccurrenceInsideGroup(updateTaskOccurrenceIndexDto?: UpdateTaskOccurrenceIndexDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public reorderTaskOccurrenceInsideGroup(updateTaskOccurrenceIndexDto?: UpdateTaskOccurrenceIndexDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public reorderTaskOccurrenceInsideGroup(updateTaskOccurrenceIndexDto?: UpdateTaskOccurrenceIndexDto, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<any>;
+    public reorderTaskOccurrenceInsideGroup(updateTaskOccurrenceIndexDto?: UpdateTaskOccurrenceIndexDto, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<HttpResponse<any>>;
+    public reorderTaskOccurrenceInsideGroup(updateTaskOccurrenceIndexDto?: UpdateTaskOccurrenceIndexDto, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<HttpEvent<any>>;
+    public reorderTaskOccurrenceInsideGroup(updateTaskOccurrenceIndexDto?: UpdateTaskOccurrenceIndexDto, observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -689,10 +734,10 @@ export class TaskTemplateService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public reorderTaskTemplateInsideGroup(updateTaskTemplateIndexDto?: UpdateTaskTemplateIndexDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public reorderTaskTemplateInsideGroup(updateTaskTemplateIndexDto?: UpdateTaskTemplateIndexDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public reorderTaskTemplateInsideGroup(updateTaskTemplateIndexDto?: UpdateTaskTemplateIndexDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public reorderTaskTemplateInsideGroup(updateTaskTemplateIndexDto?: UpdateTaskTemplateIndexDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public reorderTaskTemplateInsideGroup(updateTaskTemplateIndexDto?: UpdateTaskTemplateIndexDto, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<any>;
+    public reorderTaskTemplateInsideGroup(updateTaskTemplateIndexDto?: UpdateTaskTemplateIndexDto, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<HttpResponse<any>>;
+    public reorderTaskTemplateInsideGroup(updateTaskTemplateIndexDto?: UpdateTaskTemplateIndexDto, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<HttpEvent<any>>;
+    public reorderTaskTemplateInsideGroup(updateTaskTemplateIndexDto?: UpdateTaskTemplateIndexDto, observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -761,10 +806,10 @@ export class TaskTemplateService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public updateTaskTemplateAndOccurrence(id: number, taskOccurrenceDto?: TaskOccurrenceDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public updateTaskTemplateAndOccurrence(id: number, taskOccurrenceDto?: TaskOccurrenceDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public updateTaskTemplateAndOccurrence(id: number, taskOccurrenceDto?: TaskOccurrenceDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public updateTaskTemplateAndOccurrence(id: number, taskOccurrenceDto?: TaskOccurrenceDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public updateTaskTemplateAndOccurrence(id: number, taskOccurrenceDto?: TaskOccurrenceDto, observe?: 'body', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<any>;
+    public updateTaskTemplateAndOccurrence(id: number, taskOccurrenceDto?: TaskOccurrenceDto, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<HttpResponse<any>>;
+    public updateTaskTemplateAndOccurrence(id: number, taskOccurrenceDto?: TaskOccurrenceDto, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<HttpEvent<any>>;
+    public updateTaskTemplateAndOccurrence(id: number, taskOccurrenceDto?: TaskOccurrenceDto, observe: any = 'body', reportProgress: boolean = false, options?: { httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean }): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling updateTaskTemplateAndOccurrence.');
         }
@@ -815,7 +860,7 @@ export class TaskTemplateService {
             }
         }
 
-        let localVarPath = `/api/TaskTemplate/UpdateTaskTemplateAndOccurrence/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int32"})}`;
+        let localVarPath = `/api/TaskTemplate/UpdateTaskTemplateAndOccurrence/${this.configuration.encodeParam({ name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int32" })}`;
         return this.httpClient.request<any>('put', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,

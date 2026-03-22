@@ -313,6 +313,15 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          {
+            "name": "localDate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
           }
         ],
         "responses": {
@@ -424,6 +433,17 @@
           "TaskTemplate"
         ],
         "operationId": "GetOneTimeTaskOccurrences",
+        "parameters": [
+          {
+            "name": "localDate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -463,6 +483,17 @@
           "TaskTemplate"
         ],
         "operationId": "GetRecurringTaskOccurrences",
+        "parameters": [
+          {
+            "name": "localDate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -502,6 +533,17 @@
           "TaskTemplate"
         ],
         "operationId": "GetCommittedTaskOccurrencesForNextWeek",
+        "parameters": [
+          {
+            "name": "localDate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -540,6 +582,9 @@
     "schemas": {
       "CommitTaskOccurrenceDto": {
         "type": "object",
+        "required": [
+          "localDate"
+        ],
         "properties": {
           "taskOccurrenceId": {
             "type": "integer",
@@ -549,6 +594,10 @@
             "type": "string",
             "format": "date-time",
             "nullable": true
+          },
+          "localDate": {
+            "type": "string",
+            "format": "date"
           }
         },
         "additionalProperties": false

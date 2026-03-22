@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, switchMap, take } from 'rxjs';
-import { CommitTaskOccurrenceDto, TaskTemplateService, TaskOccurrenceDto, UpdateTaskOccurrenceIndexDto, UpdateTaskTemplateIndexDto } from '../../infrastructure';
+import { CommitTaskOccurrenceDto, TaskOccurrenceDto, TaskTemplateService, UpdateTaskOccurrenceIndexDto, UpdateTaskTemplateIndexDto } from '../../infrastructure';
 
 @Injectable({
   providedIn: 'root'
@@ -13,15 +13,15 @@ export class TaskTemplateExtendedService {
   private readonly weekDaysSourceSubject = new BehaviorSubject<void>(undefined);
 
   oneTimeItems$ = this.oneTimeTaskTemplatesSourceSubject.pipe(
-    switchMap(() => this.taskTemplateService.getOneTimeTaskOccurrences())
+    switchMap(() => this.taskTemplateService.getOneTimeTaskOccurrences(this.getCurrentLocalDate()))
   );
 
   recurringItems$ = this.recurringTaskTemplatesSourceSubject.pipe(
-    switchMap(() => this.taskTemplateService.getRecurringTaskOccurrences())
+    switchMap(() => this.taskTemplateService.getRecurringTaskOccurrences(this.getCurrentLocalDate()))
   );
 
   weekData$ = this.weekDaysSourceSubject.pipe(
-    switchMap(() => this.taskTemplateService.getCommittedTaskOccurrencesForNextWeek())
+    switchMap(() => this.taskTemplateService.getCommittedTaskOccurrencesForNextWeek(this.getCurrentLocalDate()))
   );
 
   createTaskOccurrence(taskOccurrence: TaskOccurrenceDto) {
@@ -56,7 +56,7 @@ export class TaskTemplateExtendedService {
   }
 
   completeTaskOccurrence(taskOccurrenceId: number) {
-    return this.taskTemplateService.completeTaskOccurrence(taskOccurrenceId).pipe(
+    return this.taskTemplateService.completeTaskOccurrence(taskOccurrenceId, this.getCurrentLocalDate()).pipe(
       take(1),
     )
       .subscribe(() => {
@@ -67,6 +67,7 @@ export class TaskTemplateExtendedService {
   commitTaskOccurrence(taskOccurrenceId: number, commitDay: string | null) {
     const commitTaskOccurrenceDto: CommitTaskOccurrenceDto = {
       commitDay,
+      localDate: this.getCurrentLocalDate(),
       taskOccurrenceId,
     };
 
@@ -116,5 +117,14 @@ export class TaskTemplateExtendedService {
     this.oneTimeTaskTemplatesSourceSubject.next();
     this.recurringTaskTemplatesSourceSubject.next();
     this.weekDaysSourceSubject.next();
+  }
+
+  private getCurrentLocalDate() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = `${now.getMonth() + 1}`.padStart(2, '0');
+    const day = `${now.getDate()}`.padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
   }
 }

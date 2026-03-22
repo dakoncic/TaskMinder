@@ -11,8 +11,9 @@
  */
 
 
-export interface CommitTaskOccurrenceDto { 
+export interface CommitTaskOccurrenceDto {
     taskOccurrenceId?: number;
     commitDay?: string | null;
+    localDate: string;
 }
 

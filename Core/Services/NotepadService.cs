@@ -1,7 +1,6 @@
 ﻿using Core.DomainModels;
 using Core.Helpers;
 using Core.Interfaces;
-using Infrastructure.DAL;
 using Infrastructure.Interfaces.IRepository;
 using Mapster;
 using Entity = Infrastructure.Entities;
@@ -11,16 +10,16 @@ namespace Core.Services
 {
     public class NotepadService : BaseService, INotepadService
     {
-        private readonly MyFeaturesDbContext _context;
         private readonly IGenericRepository<Entity.Notepad> _notepadRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
         public NotepadService(
-            MyFeaturesDbContext context,
-            IGenericRepository<Entity.Notepad> notepadRepository
+            IGenericRepository<Entity.Notepad> notepadRepository,
+            IUnitOfWork unitOfWork
             )
         {
-            _context = context;
             _notepadRepository = notepadRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task Create()
@@ -39,7 +38,7 @@ namespace Core.Services
 
             _notepadRepository.Add(notepadEntity);
 
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
         //ovo refaktorat da radim single item fetch ipak kao i svagdje drugdje
@@ -71,7 +70,7 @@ namespace Core.Services
                 notepadEntity.RowIndex = newIndex;
             }
 
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task Delete(int notepadId)
@@ -88,7 +87,7 @@ namespace Core.Services
             );
 
             _notepadRepository.Delete(notepadId);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<List<Notepad>> GetAll()

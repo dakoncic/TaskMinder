@@ -1,6 +1,5 @@
 using Core.DomainModels;
 using Core.Interfaces;
-using InfrastructureEntity = Infrastructure.Entities;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -94,6 +93,45 @@ public sealed class TaskTemplateControllerIntegrationTests : IClassFixture<ApiWe
         Assert.True(HasTraceId(problemDetails.Extensions));
     }
 
+    [Fact]
+    public async Task GetOneTimeTaskOccurrences_WhenLocalDateIsMissing_ReturnsValidationProblemDetails()
+    {
+        var response = await _httpClient.GetAsync("/api/TaskTemplate/GetOneTimeTaskOccurrences");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+
+        var validationProblem = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
+
+        Assert.NotNull(validationProblem);
+        Assert.Equal(400, validationProblem!.Status);
+        Assert.Contains("localDate", validationProblem.Errors.Keys);
+        Assert.True(HasTraceId(validationProblem.Extensions));
+    }
+
+    [Fact]
+    public async Task CommitTaskOccurrence_WhenLocalDateIsMissing_ReturnsValidationProblemDetails()
+    {
+        var request = new CommitTaskOccurrenceDto
+        {
+            TaskOccurrenceId = 5,
+            CommitDay = null,
+            LocalDate = null
+        };
+
+        var response = await _httpClient.PostAsJsonAsync("/api/TaskTemplate/CommitTaskOccurrence", request);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+
+        var validationProblem = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
+
+        Assert.NotNull(validationProblem);
+        Assert.Equal(400, validationProblem!.Status);
+        Assert.Contains(nameof(CommitTaskOccurrenceDto.LocalDate), validationProblem.Errors.Keys);
+        Assert.True(HasTraceId(validationProblem.Extensions));
+    }
+
     private static bool HasTraceId(IDictionary<string, object?> extensions)
     {
         return extensions.TryGetValue("traceId", out var value)
@@ -132,7 +170,7 @@ public sealed class TaskTemplateControllerIntegrationTests : IClassFixture<ApiWe
             throw new NotSupportedException();
         }
 
-        public Task CompleteTaskOccurrence(int taskOccurrenceId)
+        public Task CompleteTaskOccurrence(int taskOccurrenceId, DateOnly localDate)
         {
             throw new NotSupportedException();
         }
@@ -152,12 +190,12 @@ public sealed class TaskTemplateControllerIntegrationTests : IClassFixture<ApiWe
             throw new NotSupportedException();
         }
 
-        public Task<List<TaskOccurrence>> GetActiveTaskOccurrences(bool recurring)
+        public Task<List<TaskOccurrence>> GetActiveTaskOccurrences(bool recurring, DateOnly localDate)
         {
             throw new NotSupportedException();
         }
 
-        public Task<Dictionary<DateTime, List<InfrastructureEntity.TaskOccurrence>>> GetCommittedTaskOccurrencesForNextWeek()
+        public Task<Dictionary<DateTime, List<TaskOccurrence>>> GetCommittedTaskOccurrencesForNextWeek(DateOnly localDate)
         {
             throw new NotSupportedException();
         }
