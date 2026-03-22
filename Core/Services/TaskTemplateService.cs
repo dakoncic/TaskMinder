@@ -6,7 +6,6 @@ using Infrastructure.Interfaces.IRepository;
 using Mapster;
 using Shared;
 using System.Linq.Expressions;
-//using Infrastructure.Entities; ako imam error ambiguous reference, onda maknut ovu liniju
 using Entity = Infrastructure.Entities;
 
 namespace Core.Services
@@ -52,8 +51,6 @@ namespace Core.Services
         {
             var taskOccurrenceEntity = await _taskOccurrenceRepository.GetByIdAsync(taskOccurrenceId, TaskTemplateInclude);
 
-            //ostavljamo check ovdje u servisu, ako je entity null, onda on ne može zvat
-            //nikakvu metodu da provjeri sam sebe jeli null
             CheckIfNull(taskOccurrenceEntity, $"TaskOccurrence with ID {taskOccurrenceId} not found.");
 
             return taskOccurrenceEntity.Adapt<TaskOccurrence>();
@@ -96,7 +93,6 @@ namespace Core.Services
 
             CheckIfNull(taskTemplateEntity, $"TaskTemplate with ID {taskTemplateId} not found.");
 
-            //dohvaćam committed TaskOccurrence za TaskTemplate ako postoji
             var taskOccurrenceEntity = taskTemplateEntity.TaskOccurrences.FirstOrDefault(x => x.CommittedDate != null && x.CompletionDate == null);
 
             await RemoveTaskTemplateFromCurrentGroup(taskTemplateEntity, taskOccurrenceEntity?.CommittedDate);
@@ -125,8 +121,6 @@ namespace Core.Services
                 var taskOccurrenceDomain = taskOccurrenceEntity.Adapt<TaskOccurrence>();
 
                 var currentLocalDateTime = localDate.ToDateTime(TimeOnly.MinValue);
-
-                //dobar primjer enkapsulacije biznis logike u domain klasu
                 var newTaskOccurrence = taskOccurrenceDomain.CreateNewRecurringTask(currentLocalDateTime);
 
                 taskOccurrenceEntity.TaskTemplate.RowIndex = await GetNextRowIndexAfterGroupChange(
@@ -299,7 +293,6 @@ namespace Core.Services
 
             for (DateTime day = businessDate; day < endOfDayRange; day = day.AddDays(1))
             {
-                // commitani taskovi za specifičan dan
                 var tasksForDay = taskOccurrencesForNextWeekEntity
                     .Where(t =>
                         t.CommittedDate.HasValue &&

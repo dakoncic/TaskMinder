@@ -14,12 +14,8 @@ namespace Infrastructure.DAL
         public DbSet<TaskOccurrence> TaskOccurrences { get; set; }
         public DbSet<Notepad> Notepads { get; set; }
 
-        //znači data annotations radimo za jednostavnije stvari direktno u entity klasi
-        //a ovdje kompliciranije (fluent API) koje se tamo ne mogu, npr. veze, cascade delete itd.
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // veza između TaskTemplate i TaskOccurrence
             modelBuilder.Entity<TaskTemplate>()
                 .ToTable("TaskTemplates");
 
@@ -28,13 +24,11 @@ namespace Infrastructure.DAL
                 .HasOne(it => it.TaskTemplate)
                 .WithMany(i => i.TaskOccurrences)
                 .HasForeignKey(it => it.TaskTemplateId)
-                .OnDelete(DeleteBehavior.Cascade); // kaskadno deletamo
+                .OnDelete(DeleteBehavior.Cascade);
 
-
-            // indexi
             modelBuilder.Entity<TaskOccurrence>()
                 .HasIndex(i => i.DueDate)
-                .HasDatabaseName("IDX_DueDate"); //opcionalno al daje ime indexu
+                .HasDatabaseName("IDX_DueDate");
 
             modelBuilder.Entity<TaskOccurrence>()
                 .HasIndex(ci => ci.TaskTemplateId)
@@ -47,7 +41,7 @@ namespace Infrastructure.DAL
             modelBuilder.Entity<TaskOccurrence>()
                 .HasIndex(ci => ci.CompletionDate)
                 .HasDatabaseName("IDX_CompletionDate")
-                .HasFilter("CompletionDate IS NOT NULL");  // uvjetni index, ako puno redaka ima NULL, da njih ne gleda
+                .HasFilter("CompletionDate IS NOT NULL");
         }
     }
 }

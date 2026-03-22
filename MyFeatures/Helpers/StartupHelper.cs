@@ -24,7 +24,6 @@ namespace Infrastructure.Helpers
                 }
                 catch (Exception ex)
                 {
-                    //should replace with serilog
                     var logger = services.GetRequiredService<ILogger<Program>>();
                     logger.LogError(ex, "An error occurred while applying the database migrations.");
                 }
@@ -33,9 +32,6 @@ namespace Infrastructure.Helpers
 
         public static void ConfigureMapster()
         {
-            //mapiranja konfigurirati smjer svaki za sebe
-            //.TwoWays() ne radi sa PreserveReference()
-
             TypeAdapterConfig<Entity.TaskOccurrence, TaskOccurrence>.NewConfig()
                 .PreserveReference(true);
 

@@ -25,26 +25,20 @@ namespace Core.DomainModels
             {
                 var daysBetween = CalculateDaysBetween(TaskTemplate, currentLocalDateTime);
 
-                //ako je renewOnDueDate true, neće bit null jer postoji days between
-                //npr. vit D svake ned.
                 if (TaskTemplate.RenewOnDueDate!.Value)
                 {
-                    //na complete uvijek dodajem dane barem 1 put
                     newTaskOccurrence.DueDate = DueDate.Value.AddDays(daysBetween);
 
-                    // i onda još dodaj dok ne bude dovoljno da taj datum bude veći od današnjeg dana (ako već nije)
                     while (newTaskOccurrence.DueDate.Value.Date <= currentLocalDateTime.Date)
                     {
                         newTaskOccurrence.DueDate = newTaskOccurrence.DueDate.Value.AddDays(daysBetween);
                     }
                 }
-                //inače se obnavlja na completion date npr. registracija auta
                 else
                 {
                     newTaskOccurrence.DueDate = currentLocalDateTime.AddDays(daysBetween);
                 }
 
-                //odma committamo
                 newTaskOccurrence.CommittedDate = newTaskOccurrence.DueDate;
             }
 
@@ -70,5 +64,4 @@ namespace Core.DomainModels
             return (endDate - startDate).Days;
         }
     }
-
 }

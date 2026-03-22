@@ -4,11 +4,11 @@ using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using MyFeatures.DTO;
+using System.Net.Mime;
 
 namespace MyFeatures.Controllers
 {
     [ApiController]
-    //route attribut da ima kontrollera
     [Route("api/[controller]")]
     public class TaskTemplateController : ControllerBase
     {
@@ -22,11 +22,12 @@ namespace MyFeatures.Controllers
         /// <summary>
         /// Creates a new task template and associated task occurrence.
         /// </summary>
-        /// <param name="taskOccurrenceDto">The data transfer object containing the task template and occurrence details.</param>
-        /// <returns>An ActionResult representing the result of the operation.</returns>
+        /// <param name="taskOccurrenceDto">The DTO containing task occurrence and template details.</param>
+        /// <returns>An ActionResult indicating the operation result (Ok on success).</returns>
         [HttpPost("CreateTaskTemplateAndOccurrence")]
-        //mogao sam i [Route("[action]")] pa iznad [HttpPost], isto je, ali je čišće u jednoj liniji
-        public async Task<ActionResult> CreateTaskTemplateAndOccurrence(TaskOccurrenceDto taskOccurrenceDto)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, MediaTypeNames.Application.Json)]
+        public async Task<IActionResult> CreateTaskTemplateAndOccurrence(TaskOccurrenceDto taskOccurrenceDto)
         {
             var taskOccurrenceDomain = taskOccurrenceDto.Adapt<TaskOccurrence>();
 
@@ -39,26 +40,26 @@ namespace MyFeatures.Controllers
         /// Retrieves a task occurrence by its ID.
         /// </summary>
         /// <param name="id">The ID of the task occurrence to retrieve.</param>
-        /// <returns>An ActionResult containing the task occurrence data transfer object.</returns>
-        //bez {id} bi morao zvat metodu preko query parametra Get?id=123, 
-        //a sa {id} mogu Get/1
+        /// <returns>An ActionResult containing the TaskOccurrenceDto when found.</returns>
         [HttpGet("GetTaskOccurrenceById/{id}")]
+        [ProducesResponseType(typeof(TaskOccurrenceDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, MediaTypeNames.Application.Json)]
         public async Task<ActionResult<TaskOccurrenceDto>> GetTaskOccurrenceById(int id)
         {
-            var taskOccurrence = await _taskTemplateService.GetTaskOccurrenceById(id);
-
-            var taskOccurrenceDto = taskOccurrence.Adapt<TaskOccurrenceDto>();
-            return Ok(taskOccurrenceDto);
+            return Ok((await _taskTemplateService.GetTaskOccurrenceById(id)).Adapt<TaskOccurrenceDto>());
         }
 
         /// <summary>
         /// Updates an existing task template and associated task occurrence.
         /// </summary>
-        /// <param name="id">The ID of the task occurrence to update.</param>
-        /// <param name="taskOccurrenceDto">The data transfer object containing the updated task template and occurrence details.</param>
-        /// <returns>An ActionResult representing the result of the operation.</returns>
+        /// <param name="id">The ID of the task template to update.</param>
+        /// <param name="taskOccurrenceDto">The DTO containing updated task occurrence and template details.</param>
+        /// <returns>An ActionResult indicating the operation result (Ok on success).</returns>
         [HttpPut("UpdateTaskTemplateAndOccurrence/{id}")]
-        public async Task<ActionResult> UpdateTaskTemplateAndOccurrence(int id, TaskOccurrenceDto taskOccurrenceDto)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, MediaTypeNames.Application.Json)]
+        public async Task<IActionResult> UpdateTaskTemplateAndOccurrence(int id, TaskOccurrenceDto taskOccurrenceDto)
         {
             var taskOccurrenceDomain = taskOccurrenceDto.Adapt<TaskOccurrence>();
 
@@ -71,8 +72,10 @@ namespace MyFeatures.Controllers
         /// Deletes a task template and its associated task occurrences.
         /// </summary>
         /// <param name="id">The ID of the task template to delete.</param>
-        /// <returns>An ActionResult representing the result of the operation.</returns>
+        /// <returns>NoContent on success.</returns>
         [HttpDelete("DeleteTaskTemplateAndOccurrences/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, MediaTypeNames.Application.Json)]
         public async Task<IActionResult> DeleteTaskTemplateAndOccurrences(int id)
         {
             await _taskTemplateService.DeleteTaskTemplateAndOccurrences(id);
@@ -82,9 +85,13 @@ namespace MyFeatures.Controllers
         /// <summary>
         /// Marks a task occurrence as complete.
         /// </summary>
-        /// <param name="taskOccurrenceId">The ID of the task occurrence to mark as complete.</param>
-        /// <returns>An ActionResult representing the result of the operation.</returns>
+        /// <param name="taskOccurrenceId">The ID of the task occurrence to mark complete.</param>
+        /// <param name="localDate">The local date to apply the completion to.</param>
+        /// <returns>An ActionResult indicating the operation result (Ok on success).</returns>
         [HttpPost("CompleteTaskOccurrence/{taskOccurrenceId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, MediaTypeNames.Application.Json)]
         public async Task<IActionResult> CompleteTaskOccurrence(int taskOccurrenceId, [FromQuery, BindRequired] DateOnly localDate)
         {
             await _taskTemplateService.CompleteTaskOccurrence(taskOccurrenceId, localDate);
@@ -95,10 +102,13 @@ namespace MyFeatures.Controllers
         /// <summary>
         /// Commits a task occurrence to a specific day or returns it to the group.
         /// </summary>
-        /// <param name="taskOccurrenceDto">The data transfer object containing the commit day and task occurrence ID.</param>
-        /// <returns>An ActionResult representing the result of the operation.</returns>
+        /// <param name="taskOccurrenceDto">The DTO containing commit details (CommitDay and TaskOccurrenceId).</param>
+        /// <returns>An ActionResult indicating the operation result (Ok on success).</returns>
         [HttpPost("CommitTaskOccurrence")]
-        public async Task<ActionResult> CommitTaskOccurrence(CommitTaskOccurrenceDto taskOccurrenceDto)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, MediaTypeNames.Application.Json)]
+        public async Task<IActionResult> CommitTaskOccurrence(CommitTaskOccurrenceDto taskOccurrenceDto)
         {
             await _taskTemplateService.CommitTaskOccurrenceOrReturnToGroup(taskOccurrenceDto.CommitDay, taskOccurrenceDto.TaskOccurrenceId);
 
@@ -108,16 +118,18 @@ namespace MyFeatures.Controllers
         /// <summary>
         /// Reorders a task template within a group.
         /// </summary>
-        /// <param name="updateTaskTemplateIndexDto">The data transfer object containing the task template ID, new index, and recurrence flag.</param>
-        /// <returns>An ActionResult representing the result of the operation.</returns>
+        /// <param name="updateTaskTemplateIndexDto">The DTO containing TaskTemplateId, NewIndex, and Recurring flag used to reorder a template within its group.</param>
+        /// <returns>An ActionResult indicating the operation result (Ok on success).</returns>
         [HttpPost("ReorderTaskTemplateInsideGroup")]
-        public async Task<ActionResult> ReorderTaskTemplateInsideGroup(UpdateTaskTemplateIndexDto updateTaskTemplateIndexDto)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, MediaTypeNames.Application.Json)]
+        public async Task<IActionResult> ReorderTaskTemplateInsideGroup(UpdateTaskTemplateIndexDto updateTaskTemplateIndexDto)
         {
             await _taskTemplateService.ReorderTaskTemplateInsideGroup(
-            updateTaskTemplateIndexDto.TaskTemplateId,
-            updateTaskTemplateIndexDto.NewIndex,
-            updateTaskTemplateIndexDto.Recurring
-                );
+                updateTaskTemplateIndexDto.TaskTemplateId,
+                updateTaskTemplateIndexDto.NewIndex,
+                updateTaskTemplateIndexDto.Recurring);
 
             return Ok();
         }
@@ -125,16 +137,18 @@ namespace MyFeatures.Controllers
         /// <summary>
         /// Reorders a task occurrence within a group.
         /// </summary>
-        /// <param name="updateTaskOccurrenceIndexDto">The data transfer object containing the task occurrence ID, commit day, and new index.</param>
-        /// <returns>An ActionResult representing the result of the operation.</returns>
+        /// <param name="updateTaskOccurrenceIndexDto">The DTO containing TaskOccurrenceId, CommitDay, and NewIndex used to reorder an occurrence within its group.</param>
+        /// <returns>An ActionResult indicating the operation result (Ok on success).</returns>
         [HttpPost("ReorderTaskOccurrenceInsideGroup")]
-        public async Task<ActionResult> ReorderTaskOccurrenceInsideGroup(UpdateTaskOccurrenceIndexDto updateTaskOccurrenceIndexDto)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, MediaTypeNames.Application.Json)]
+        public async Task<IActionResult> ReorderTaskOccurrenceInsideGroup(UpdateTaskOccurrenceIndexDto updateTaskOccurrenceIndexDto)
         {
             await _taskTemplateService.ReorderTaskOccurrenceInsideGroup(
-            updateTaskOccurrenceIndexDto.TaskOccurrenceId,
-            updateTaskOccurrenceIndexDto.CommitDay,
-            updateTaskOccurrenceIndexDto.NewIndex
-                );
+                updateTaskOccurrenceIndexDto.TaskOccurrenceId,
+                updateTaskOccurrenceIndexDto.CommitDay,
+                updateTaskOccurrenceIndexDto.NewIndex);
 
             return Ok();
         }
@@ -142,34 +156,39 @@ namespace MyFeatures.Controllers
         /// <summary>
         /// Retrieves a list of one-time task occurrences.
         /// </summary>
-        /// <returns>An ActionResult containing a list of one-time task occurrence data transfer objects.</returns>
+        /// <param name="localDate">The local date (DateOnly) for which to retrieve one-time task occurrences.</param>
+        /// <returns>An ActionResult containing a list of TaskOccurrenceDto.</returns>
         [HttpGet("GetOneTimeTaskOccurrences")]
+        [ProducesResponseType(typeof(IEnumerable<TaskOccurrenceDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, MediaTypeNames.Application.Json)]
         public async Task<ActionResult<IEnumerable<TaskOccurrenceDto>>> GetOneTimeTaskOccurrences([FromQuery, BindRequired] DateOnly localDate)
         {
             var taskOccurrences = await _taskTemplateService.GetActiveTaskOccurrences(false, localDate);
-            var taskOccurrenceDtos = taskOccurrences.Adapt<List<TaskOccurrenceDto>>();
-
-            return Ok(taskOccurrenceDtos);
+            return Ok(taskOccurrences.Adapt<List<TaskOccurrenceDto>>());
         }
 
         /// <summary>
         /// Retrieves a list of recurring task occurrences.
         /// </summary>
-        /// <returns>An ActionResult containing a list of recurring task occurrence data transfer objects.</returns>
+        /// <param name="localDate">The local date (DateOnly) for which to retrieve recurring task occurrences.</param>
+        /// <returns>An ActionResult containing a list of TaskOccurrenceDto.</returns>
         [HttpGet("GetRecurringTaskOccurrences")]
+        [ProducesResponseType(typeof(IEnumerable<TaskOccurrenceDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, MediaTypeNames.Application.Json)]
         public async Task<ActionResult<IEnumerable<TaskOccurrenceDto>>> GetRecurringTaskOccurrences([FromQuery, BindRequired] DateOnly localDate)
         {
             var taskOccurrences = await _taskTemplateService.GetActiveTaskOccurrences(true, localDate);
-            var taskOccurrenceDtos = taskOccurrences.Adapt<List<TaskOccurrenceDto>>();
-
-            return Ok(taskOccurrenceDtos);
+            return Ok(taskOccurrences.Adapt<List<TaskOccurrenceDto>>());
         }
 
         /// <summary>
         /// Retrieves committed task occurrences for the next week, grouped by day.
         /// </summary>
-        /// <returns>A list of WeekDayDto objects containing the committed task occurrences grouped by day.</returns>
+        /// <param name="localDate">The local date (DateOnly) from which the next week is calculated for committed occurrences.</param>
+        /// <returns>An ActionResult containing a list of WeekDayDto grouped by day.</returns>
         [HttpGet("GetCommittedTaskOccurrencesForNextWeek")]
+        [ProducesResponseType(typeof(IEnumerable<WeekDayDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, MediaTypeNames.Application.Json)]
         public async Task<IEnumerable<WeekDayDto>> GetCommittedTaskOccurrencesForNextWeek([FromQuery, BindRequired] DateOnly localDate)
         {
             var groupedTaskOccurrences = await _taskTemplateService.GetCommittedTaskOccurrencesForNextWeek(localDate);

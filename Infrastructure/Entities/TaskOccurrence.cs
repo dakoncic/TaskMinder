@@ -14,7 +14,7 @@ namespace Infrastructure.Entities
         public DateTime? CommittedDate { get; set; }
 
         [StringLength(1000)]
-        public string Description { get; set; } = string.Empty; //modified description for recurring
+        public string Description { get; set; } = string.Empty;
 
         [DataType(DataType.Date)]
         public DateTime? CompletionDate { get; set; }

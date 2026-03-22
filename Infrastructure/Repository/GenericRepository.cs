@@ -19,8 +19,6 @@ namespace Infrastructure.Repository
             _dbSet = context.Set<TEntity>();
         }
 
-        //ako želim naglasit da će se potencijalno ova lista dalje query-at tamo gdje se zove
-        //onda maknut IEnumerable i ne vratit ToListAsync() nego IQueryable npr.
         public async Task<IEnumerable<TEntity>> GetAllAsync(
             Expression<Func<TEntity, bool>>? filter = null,
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
@@ -110,11 +108,6 @@ namespace Infrastructure.Repository
         public void Update(TEntity entity)
         {
             _dbSet.Attach(entity);
-
-            //eksplicitno attachamo/markamo entity u context, tako ako koristimo AsNoTracking()
-            //da se entity prepozna kao modified za slučaj kad ga AsNoTracking() više
-            //neće automatski pazit pa da se može spremit normalno u bazu
-            //*AsNoTracking() se ne smije na tablici gdje pazimo na optimistic concurrency control
             _context.Entry(entity).State = EntityState.Modified;
         }
 

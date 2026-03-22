@@ -2,6 +2,7 @@
 using Core.Interfaces;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using MyFeatures.DTO;
 
 namespace MyFeatures.Controllers
@@ -22,6 +23,8 @@ namespace MyFeatures.Controllers
         /// </summary>
         /// <returns>An ActionResult containing a list of NotepadDto objects.</returns>
         [HttpGet("GetAllNotepads")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<NotepadDto>))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<NotepadDto>>> GetAllNotepads()
         {
             var notepads = await _notepadService.GetAll();
@@ -35,6 +38,9 @@ namespace MyFeatures.Controllers
         /// </summary>
         /// <returns>An ActionResult representing the result of the operation.</returns>
         [HttpPost("CreateNotepad")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<NotepadDto>> CreateNotepad()
         {
             await _notepadService.Create();
@@ -49,6 +55,10 @@ namespace MyFeatures.Controllers
         /// <param name="notepadDto">The data transfer object containing the updated notepad details.</param>
         /// <returns>An ActionResult representing the result of the operation.</returns>
         [HttpPut("UpdateNotepad/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<NotepadDto>> UpdateNotepad(int id, NotepadDto notepadDto)
         {
             var notepadDomain = notepadDto.Adapt<Notepad>();
@@ -63,6 +73,9 @@ namespace MyFeatures.Controllers
         /// <param name="id">The ID of the notepad to delete.</param>
         /// <returns>An ActionResult representing the result of the operation.</returns>
         [HttpDelete("DeleteNotepad/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteNotepad(int id)
         {
             await _notepadService.Delete(id);

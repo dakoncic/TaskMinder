@@ -27,7 +27,6 @@ namespace Core.Services
             var notepadEntity = new Entity.Notepad();
 
             var maxRowIndexNotepadEntity = await _notepadRepository.GetFirstOrDefaultAsync(
-                //ne želi pustit OrderByDescending ako nemam trivijalni "true" filter
                 x => true,
                 q => q.OrderByDescending(x => x.RowIndex)
             );
@@ -41,7 +40,6 @@ namespace Core.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        //ovo refaktorat da radim single item fetch ipak kao i svagdje drugdje
         public async Task Update(int notepadId, Notepad notepadDomain)
         {
             var notepadEntity = await _notepadRepository.GetByIdAsync(notepadId);

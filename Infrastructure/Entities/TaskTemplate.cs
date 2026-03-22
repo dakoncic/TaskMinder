@@ -11,10 +11,6 @@ namespace Infrastructure.Entities
         public string Description { get; set; } = string.Empty;
 
         public bool Recurring { get; set; }
-
-        //ako je false, onda će se days between dodat na completion date
-        //za novi DueDate
-        //ako je true onda na DueDate
         public bool? RenewOnDueDate { get; set; }
         public int? IntervalValue { get; set; }
         public IntervalType? IntervalType { get; set; }
@@ -22,8 +18,6 @@ namespace Infrastructure.Entities
         public int? RowIndex { get; set; }
 
         public bool Completed { get; set; }
-
-        //nova lista se inicijalizira tako da nikad ne bude null
         public ICollection<TaskOccurrence> TaskOccurrences { get; set; } = new List<TaskOccurrence>();
     }
 }
