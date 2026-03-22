@@ -1,50 +1,57 @@
-🌟 Introduction 
+# TaskMinder
 
-In both our personal and professional lives, we all write down notes and create "to-do" lists. Whether it's setting New Year's goals, 
-managing finances, planning a summer vacation, or remembering important life events, we rely on different methods to keep track of what needs to be done.\
-Usually we use notepads or apps for these reminders.
+TaskMinder is a full-stack task planning application built with ASP.NET Core, EF Core, and Angular. The core design challenge is modeling the difference between recurring task templates and concrete task occurrences while supporting weekly scheduling, completion flows, reorder logic, and validation-heavy API interactions.
 
-However, we often forget simple things like: exercising regularly, reading more books or calling our grandparents more often. \
-These tasks are easy to put off with the thought, "I'll do it tomorrow." \
-This problem of delaying things hurts our productivity.
+I use this project as a portfolio example for layered architecture, domain-driven business rules, backend testing, and typed frontend integration. Companion portfolio pieces cover authentication, CI/CD, Docker, and deployment automation.
 
-I've found that planning my day or week in advance improves my productivity. But manually writing to-do lists repeatedly can become annoying, 
-and eventually I stop doing it. I needed a solution to be more productive and disciplined without the constant effort of manual planning,
-a tool that acts like a personal assistant, consistently reminding me of my obligations.
+## What This Project Demonstrates
 
-To solve this problem, I made an app to help organize daily activities better.
+- Layered backend architecture across API, application/domain, and persistence projects.
+- A domain model that separates task templates from task occurrences.
+- Business rules for recurring tasks, due dates, committed scheduling, and row ordering.
+- Backend testing for service behavior, API validation, and error handling.
+- Standardized RFC 7807 ProblemDetails responses with trace identifiers.
+- Angular integration with a generated API client and environment-specific builds.
 
-🗓️ TaskMinder
+## Domain Model
 
-**TaskMinder** is a web application designed to simplify your daily planning. 
-It consists of single page with four main features:
+The key design decision is splitting task data into two concepts:
 
-1. **7-Days Schedule**: A weekly overview of your committed tasks, making sure you stay on track with your goals.
-2. **One-Time Tasks**: A section for non-repeating tasks that need to be completed once, such as:
-    - organize a bachelor party
-    - research best investing options for retirement
-3. **Repeating Tasks**: A section for recurring tasks such as:
-    - exercise every other day
-    - read at least 30 minutes each day
-    - work at least 45 minutes each day on personal project outside work
-    - listen at least 30 minutes of podcast every other day
-4. **Notepads**: Create as many notepads as needed to store general information, such as
-    - budgets
-    - vacation packing list
-    - wish list for future purchase
+- `TaskTemplate`: the durable definition of a task, including whether it is recurring, its recurrence interval, and its ordering inside a group.
+- `TaskOccurrence`: a concrete instance of work that can be scheduled, committed to a day, completed, or regenerated from a recurring template.
 
-Each task can have an optional due date. When a due date is within the next 7 days, the task is automatically added to your schedule. 
-Repeating tasks can be set to recreate automatically after a specified interval, such as reminding you to register your car annually.
-This greatly reduces friction in helping us complete what we plan to do.
+That split avoids treating recurring work as simple CRUD. It allows the service layer to handle distinct flows such as:
+
+- completing a one-time task and removing it from active ordering
+- completing a recurring task and generating the next occurrence
+- moving overdue committed tasks into the current business window
+- reordering tasks inside backlog and scheduled groups
 
 ## Architecture
 
-The solution is split into clear backend and frontend layers:
+The solution is split into focused projects:
 
-- `MyFeatures` contains the ASP.NET Core API, controllers, DTOs, validation, middleware, and startup composition.
-- `Core` contains the application and domain logic, including `TaskTemplateService` and the task recurrence and ordering rules.
-- `Infrastructure` contains EF Core entities, `MyFeaturesDbContext`, repositories, and migrations.
-- `MyFeaturesUI` contains the Angular frontend and generated API client.
+- `MyFeatures`: ASP.NET Core API, controllers, DTOs, validation, middleware, and application composition.
+- `Core`: domain models, business services, recurrence logic, ordering rules, and service contracts.
+- `Infrastructure`: EF Core entities, database context, repositories, unit of work, and migrations.
+- `MyFeaturesUI`: Angular frontend with generated API client integration.
+- `Core.Tests`: unit and integration tests covering backend behavior.
+
+## Key Engineering Decisions
+
+- `TimeProvider` is injected into the service layer so time-based rules remain testable.
+- FluentValidation is used for request validation and returns consistent problem responses.
+- Global exception handling is implemented with middleware that emits `application/problem+json` payloads.
+- Mapster is used to map between DTOs, domain models, and persistence entities.
+- EF Core migrations are tracked in source control and applied through the application startup path for local environments.
+
+## Testing Approach
+
+The backend test suite covers behavior that matters to the domain, not only object creation.
+
+- Unit tests verify recurrence, completion, scheduling, and time-sensitive behavior in `TaskTemplateService`.
+- Integration tests verify validation failures, not-found behavior, and unhandled exception responses through the HTTP layer.
+- Validation tests cover DTO rules and nested request structures.
 
 ## Stack
 
@@ -54,24 +61,33 @@ The solution is split into clear backend and frontend layers:
 - FluentValidation
 - Mapster
 - Serilog
-- xUnit + Moq + EF Core InMemory for backend tests
+- xUnit
+- Moq
+- EF Core InMemory
 
-## What This Project Shows
+## Companion Portfolio Pieces
 
-- Clear separation between API, service/domain, and persistence concerns.
-- A domain model that distinguishes task templates from concrete task occurrences.
-- Automated backend tests for critical task flows such as scheduling, recurrence, and validation.
-- Structured error handling and logging for operational visibility.
+This repository focuses on application architecture and domain behavior. Related portfolio work covers:
+
+- authentication and authorization flows with Firebase
+- CI/CD pipelines
+- Docker-based packaging
+- deployment automation
 
 ## Running The Project
 
-- Build backend: `dotnet build .\MyFeatures.sln`
-- Run backend tests: `dotnet test Core.Tests\Core.Tests.csproj`
-- Build frontend: `cd MyFeaturesUI && npm run build`
+### Backend
 
----
+```bash
+dotnet build .\MyFeatures.sln
+dotnet test Core.Tests\Core.Tests.csproj -c Release
+```
 
-> "Changes that seem small and unimportant at first will compound into remarkable results if you're willing to stick with them for years. We all deal with setbacks but in the long run, the quality of our lives often depends on the quality of our habits."  
-> — *James Clear*
+### Frontend
+
+```bash
+cd MyFeaturesUI
+npm run build
+```
 
 
