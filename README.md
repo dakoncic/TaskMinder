@@ -65,15 +65,6 @@ The backend test suite covers behavior that matters to the domain, not only obje
 - Moq
 - EF Core InMemory
 
-## Companion Portfolio Pieces
-
-This repository focuses on application architecture and domain behavior. Related portfolio work covers:
-
-- authentication and authorization flows with Firebase
-- CI/CD pipelines
-- Docker-based packaging
-- deployment automation
-
 ## Running The Project
 
 ### Backend
