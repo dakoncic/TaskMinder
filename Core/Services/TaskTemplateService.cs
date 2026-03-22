@@ -144,7 +144,7 @@ namespace Core.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task CommitTaskOccurrenceOrReturnToGroup(DateTime? commitDay, int taskOccurrenceId)
+        public async Task CommitTaskOccurrenceOrReturnToGroup(DateOnly? commitDay, int taskOccurrenceId)
         {
             var taskOccurrenceEntity = await _taskOccurrenceRepository.GetByIdAsync(taskOccurrenceId, TaskTemplateInclude);
             CheckIfNull(taskOccurrenceEntity, $"TaskOccurrence with ID {taskOccurrenceId} not found.");
@@ -152,10 +152,11 @@ namespace Core.Services
             var taskOccurrenceDomain = taskOccurrenceEntity.Adapt<TaskOccurrence>();
 
             var oldCommittedDate = taskOccurrenceDomain.CommittedDate;
+            var newCommittedDate = commitDay?.ToDateTime(TimeOnly.MinValue);
 
-            if (oldCommittedDate?.Date != commitDay?.Date)
+            if (oldCommittedDate?.Date != newCommittedDate?.Date)
             {
-                taskOccurrenceDomain.CommittedDate = commitDay?.Date;
+                taskOccurrenceDomain.CommittedDate = newCommittedDate;
 
                 if (commitDay is null)
                 {

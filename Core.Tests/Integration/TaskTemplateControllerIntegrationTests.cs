@@ -109,29 +109,6 @@ public sealed class TaskTemplateControllerIntegrationTests : IClassFixture<ApiWe
         Assert.True(HasTraceId(validationProblem.Extensions));
     }
 
-    [Fact]
-    public async Task CommitTaskOccurrence_WhenLocalDateIsMissing_ReturnsValidationProblemDetails()
-    {
-        var request = new CommitTaskOccurrenceDto
-        {
-            TaskOccurrenceId = 5,
-            CommitDay = null,
-            LocalDate = null
-        };
-
-        var response = await _httpClient.PostAsJsonAsync("/api/TaskTemplate/CommitTaskOccurrence", request);
-
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
-
-        var validationProblem = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
-
-        Assert.NotNull(validationProblem);
-        Assert.Equal(400, validationProblem!.Status);
-        Assert.Contains(nameof(CommitTaskOccurrenceDto.LocalDate), validationProblem.Errors.Keys);
-        Assert.True(HasTraceId(validationProblem.Extensions));
-    }
-
     private static bool HasTraceId(IDictionary<string, object?> extensions)
     {
         return extensions.TryGetValue("traceId", out var value)
@@ -175,7 +152,7 @@ public sealed class TaskTemplateControllerIntegrationTests : IClassFixture<ApiWe
             throw new NotSupportedException();
         }
 
-        public Task CommitTaskOccurrenceOrReturnToGroup(DateTime? commitDay, int taskOccurrenceId)
+        public Task CommitTaskOccurrenceOrReturnToGroup(DateOnly? commitDay, int taskOccurrenceId)
         {
             throw new NotSupportedException();
         }

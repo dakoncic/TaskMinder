@@ -582,9 +582,6 @@
     "schemas": {
       "CommitTaskOccurrenceDto": {
         "type": "object",
-        "required": [
-          "localDate"
-        ],
         "properties": {
           "taskOccurrenceId": {
             "type": "integer",
@@ -594,10 +591,6 @@
             "type": "string",
             "format": "date-time",
             "nullable": true
-          },
-          "localDate": {
-            "type": "string",
-            "format": "date"
           }
         },
         "additionalProperties": false

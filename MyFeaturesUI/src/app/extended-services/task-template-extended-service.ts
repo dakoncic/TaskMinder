@@ -67,7 +67,6 @@ export class TaskTemplateExtendedService {
   commitTaskOccurrence(taskOccurrenceId: number, commitDay: string | null) {
     const commitTaskOccurrenceDto: CommitTaskOccurrenceDto = {
       commitDay,
-      localDate: this.getCurrentLocalDate(),
       taskOccurrenceId,
     };
 
