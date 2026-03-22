@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ConfirmationService } from 'primeng/api';
@@ -21,7 +21,6 @@ import { EditTaskDialogComponent } from '../edit-task-dialog/edit-task-dialog.co
     DragDropModule,
     ButtonModule
   ],
-  providers: [DatePipe],
   templateUrl: './todo.component.html',
   styleUrl: './todo.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -30,7 +29,6 @@ export class TodoComponent {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly taskTemplateExtendedService = inject(TaskTemplateExtendedService);
   private readonly dialogService = inject(DialogService);
-  private readonly datePipe = inject(DatePipe);
   private readonly translate = inject(TranslateService);
 
   @Input() items$!: Observable<any[]>;
@@ -79,16 +77,12 @@ export class TodoComponent {
 
     //null je kad dropam task, ali nije promijenio poziciju ili ga pomičem na drugi dan#
     if (this.newIndex !== null && this.newIndex !== this.originalIndex) {
-      const formattedDate = this.formatDate(rowData.committedDate);
-      this.taskTemplateExtendedService.reorderTaskOccurrence(rowData.id, formattedDate, this.newIndex);
+      this.taskTemplateExtendedService.reorderTaskOccurrence(rowData.id, rowData.committedDate, this.newIndex);
     }
 
     //logika za commitanje taska na neki drugi dan#
-    const committedDate = this.formatDate(rowData.committedDate);
-    const weekDayDateFormatted = this.formatDate(this.weekDayDate);
-
     //sad provjera ako task želim prebacit na neki drugi dan, onda zovi backend#
-    if (committedDate !== weekDayDateFormatted) {
+    if (rowData.committedDate !== this.weekDayDate) {
       this.taskTemplateExtendedService.commitTaskOccurrence(rowData.id, this.weekDayDate);
     }
 
@@ -97,10 +91,6 @@ export class TodoComponent {
 
   onRowReorder(event: any) {
     this.newIndex = event.dropIndex;
-  }
-
-  formatDate(dateString: string): string {
-    return this.datePipe.transform(dateString, 'yyyy-MM-dd')!;
   }
 
   generateCaption(weekDayDate: string): string {

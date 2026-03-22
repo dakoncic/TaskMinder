@@ -3,7 +3,7 @@
     public class CommitTaskOccurrenceDto
     {
         public int TaskOccurrenceId { get; set; }
-        public DateOnly? CommitDay { get; set; }
+        public DateTime? CommitDay { get; set; }
     }
 
 }

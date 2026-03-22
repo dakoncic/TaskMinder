@@ -152,7 +152,7 @@ public sealed class TaskTemplateControllerIntegrationTests : IClassFixture<ApiWe
             throw new NotSupportedException();
         }
 
-        public Task CommitTaskOccurrenceOrReturnToGroup(DateOnly? commitDay, int taskOccurrenceId)
+        public Task CommitTaskOccurrenceOrReturnToGroup(DateTime? commitDay, int taskOccurrenceId)
         {
             throw new NotSupportedException();
         }
